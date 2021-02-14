@@ -6,26 +6,30 @@ import time
 from datetime import date
 from random import choice
 from datetime import datetime
-
-
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from glob import glob
 import discord
 import pyfiglet
 import youtube_dl
-from discord import Member, guild
+
+from discord import Member, guild, Intents
 from discord.ext import commands, tasks
 from discord.ext.commands import BucketType, CommandOnCooldown, cooldown
+from discord.ext.commands import Bot 
 from discord.permissions import Permissions
 from discord.utils import get
 from discord.voice_client import VoiceClient
 import pytz
 from pytz import timezone
+# from swagkeker.lib.db.db import db
+from os import path
 
-intents = discord.Intents.all()
-intents.members = True
-intents.typing = True
-intents.messages = True
 
-client = commands.Bot(command_prefix = "poo.", intents = intents)
+Intents.members = True
+Intents.typing = True
+Intents.messages = True
+
+client = commands.Bot(command_prefix = "poo.", intents = discord.Intents.all())
 
 client.remove_command('help')
 
@@ -34,6 +38,68 @@ bannedMembers = [438809594291027969,
                 #bradley
                 227090540771016706]
 #ONLY TO TEST IF THE BOT IS ONLINE OKKKK
+COGS = [path.split('\\')[-1][:-3] for path in glob("./lib/cogs/*.py")]
+print(f"testpath is {COGS}")
+class Ready(object):
+    def __init__(self):
+        for cog in COGS:
+            setattr(self, cog, False)
+
+    def ready_up(self, cog):
+        setattr(self,cog,True)
+        print(f"{cog} cog ready")
+    
+    def all_ready(self):
+        return all([getattr(self,cog)for cog in COGS])
+
+class Bot(Bot):
+    def __init__(self):
+        self.ready = False
+        self.cogs_ready = Ready()
+
+        self.guild = None
+        self.scheduler = AsyncIOScheduler
+
+        # USING THE DATABASE. WE WILL SET UP LATER
+        # try:
+        #     with open("./data/banlist.txt","r",encoding ="utf-8")as f:
+        #         self.banlist=[int(line.strip()) for line in f.readlines()]
+        # except FileNotFoundError:
+        #     self.banlist=[]
+        # db.autosave(self.scheduler)
+
+        super().__init__(command_prefix='poo.',intents = discord.Intents.all())
+        super().remove_command("help")
+    def setup(self):
+        for cog in COGS:
+            self.load_extension(f"lib.cogs.{cog}")
+            print(f"cog {cog} loaded")
+        print("setup complete")
+    def run(self):
+        print("running setup...")
+        self.setup()
+        
+        self.token = 'NzM4OTkwNDUyNjczNDc4NzM4.XyT8fQ.vykBvcqIUc1ZSlemFYetHrY7tBU'
+        print("running bot")
+        super().run(self.token,reconnect = True)
+    
+    async def on_connect(self):
+        print("bot connected")
+    async def on_disconnect(self):
+        ("bot disconnected")
+    async def on_error(self,err,*args,**kwargs):
+        if err =='on_command_error':
+            await args[0].send("Something went wrong...")
+        
+        await self.stdout.send("an error occured")
+        raise
+
+    async def on_ready(self):
+        while not self.cogs_read.all_ready():
+            await asyncio.sleep(0.5)
+        
+
+
 @client.event
 async def on_ready():
 
