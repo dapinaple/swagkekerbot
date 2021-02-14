@@ -11,14 +11,16 @@ import asyncio
 class Logs(Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.listOfClipees =  [673403025410359337,]    
-        self.estelogs = self.bot.get_channel(809099936720617548)
-        self.ghostLogs = self.bot.get_channel(809099936180338742)
+        
 
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:
-            self.logChannel = self.bot.get_channel(808408001823113237)
+            self.logChannel = self.bot.get_channel(800636861793304606)
+            self.listOfClipees =  [673403025410359337,]    
+            self.estelogs = self.bot.get_channel(809099936720617548)
+            self.ghostLogs = self.bot.get_channel(809099936180338742)
+            print(f"ghost logs is {self.ghostLogs}")
             self.bot.cogs_ready.ready_up("log")
             
 
@@ -40,13 +42,14 @@ class Logs(Cog):
                 if message.content.startswith("https") or message.content.startswith("cdn"):
                     await self.estelogs.send(f"{message.author} sent this {message.content} in {message.channel.mention} in the server **{message.guild}**")
             
-        if isinstance(message.channel, channel.DMChannel) and message.author != bot.user:
+        if isinstance(message.channel, channel.DMChannel) and message.author != self.bot.user:
             await message.channel.send("https://tenor.com/view/dono-wall-talking-wall-bricks-gif-17741481")
             # elif word.lower() in forbiddenWords:
             #     await message.author.send("nword bad")
             #     print(f"send nword response to {message.author.name}")  
 
-        await self.bot.process_commands(message)
+        # await self.bot.process_commands(message)
+        
     @Cog.listener()
     async def on_message_delete(self,message):
         if not message.author.bot:
@@ -55,7 +58,7 @@ class Logs(Cog):
                 embed = Embed(title = 'Ghost Ping Found!',description = '', color = Color.dark_blue())
                 embed.add_field(name = "User:",value = message.author,inline = True)
                 embed.add_field(name = "Message:",value = message.content,inline = True)
-                embed.set_thumbnail(url = bot.user.avatar_url)
+                embed.set_thumbnail(url = self.bot.user.avatar_url)
 
                 d = datetime.now()
                 timezone = pytz.timezone("America/New_York")
@@ -63,14 +66,14 @@ class Logs(Cog):
                 
                 embed.timestamp = d_aware
                 
-                await ghostLogs.send(embed = embed)
+                await self.ghostLogs.send(embed = embed)
             
             #clipping ppl i.e. estebanlol
             if message.author.id in self.listOfClipees and not message.content.startswith("https") : 
                 embed =Embed(title = '',description = f'**{message.author.mention} sent a message in {message.channel.mention} in {message.guild}**\n {message.content}',color = Color.dark_blue())
                 embed.set_author(name = message.author,icon_url = message.author.avatar_url)
                     
-                await estelogs.send(embed=embed)
+                await self.estelogs.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Logs(bot))

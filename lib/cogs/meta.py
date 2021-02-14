@@ -6,9 +6,9 @@ from discord import Activity, ActivityType,Embed
 class Meta(Cog):
     def __init__(self,bot):
         self.bot=bot
-        self.message = "listening poopshitters|poo.help"
+        self.message = "Bot Under construction"
 
-        bot.scheduler.add_job(self.set, CronTrigger(second=0))
+        # bot.scheduler.add_job(self.set, CronTrigger(second=5))
     
     
     
@@ -21,7 +21,7 @@ class Meta(Cog):
         name = _name,
         type = getattr(ActivityType,_type,ActivityType.listening)
         ))
-
+        
 
     @Cog.listener()
     async def on_ready(self):
