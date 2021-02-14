@@ -52,7 +52,7 @@ class Ready(object):
     def all_ready(self):
         return all([getattr(self,cog)for cog in COGS])
 
-class Bot(Bot):
+class MainBot(Bot):
     def __init__(self):
         self.ready = False
         self.cogs_ready = Ready()
@@ -932,7 +932,7 @@ async def close(ctx):
 
 # fix esteban commands sending a ghost embed when he deletes a link image - chief 2.11.21
 
-bot = Bot()          
+bot = MainBot()         
 
      
     
