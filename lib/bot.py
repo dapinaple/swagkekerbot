@@ -823,15 +823,12 @@ async def testembed(ctx):
         embed.set_footer(text =f"ID:{ctx.message.id} • {date}")
         embed.set_image(url = "https://nmswp.azureedge.net/wp-content/uploads/2018/07/homepage-features-explore-768x432.jpg")
         await ctx.send(embed=embed)
-        
 @client.command()
-async def checkMessage(ctx):
-    message = await ctx.fetch_message(802259274654941215)
-    numOfAttachments = 0
-    for attachment in message.attachments:
-        numOfAttachments += 1
-    print(numOfAttachments)
-    print(message.content)
+async def close(ctx):
+    if ctx.author.id not in list_of_admins:
+        pass
+    else:
+        await client.close()
 
 
             
