@@ -22,7 +22,7 @@ from discord.voice_client import VoiceClient
 import pytz
 from pytz import timezone
 # from swagkeker.lib.db.db import db
-from os import path
+
 
 
 Intents.members = True
@@ -38,7 +38,7 @@ bannedMembers = [438809594291027969,
                 #bradley
                 227090540771016706]
 #ONLY TO TEST IF THE BOT IS ONLINE OKKKK
-COGS = [path.split('\\')[-1][:-3] for path in glob("./lib/cogs/*.py")]
+COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
 print(f"testpath is {COGS}")
 class Ready(object):
     def __init__(self):
@@ -932,8 +932,7 @@ async def close(ctx):
 
 # fix esteban commands sending a ghost embed when he deletes a link image - chief 2.11.21
 
-
-          
+bot = Bot()          
 
      
     
