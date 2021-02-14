@@ -4,7 +4,7 @@ import random
 import string
 import time
 from datetime import date
-from random import choice
+
 from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from glob import glob
@@ -32,14 +32,10 @@ Intents.members = True
 Intents.typing = True
 Intents.messages = True
 
-client = commands.Bot(command_prefix = "poo.", intents = discord.Intents.all())
+bot = commands.Bot(command_prefix = "poo.", intents = discord.Intents.all())
 
-client.remove_command('help')
 
-                #david
-bannedMembers = [438809594291027969,
-                #bradley
-                227090540771016706]
+
 #ONLY TO TEST IF THE BOT IS ONLINE OKKKK
 COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
     
@@ -103,126 +99,41 @@ class MainBot(Bot):
         self.stdout = self.get_channel(800636861793304606)
         await asyncio.sleep(0.5)
         self.ready = True
-        self.scheduler.start()
+        # self.scheduler.start()
+        # we'll use this once we have the bot say how many ppl and stuff
+        # that needs to be updated
+        ascii_banner = pyfiglet.figlet_format("Poopshitter has awoken")
+        print(ascii_banner)
+        print("Coded by Esteban \"Chief\" Schmitt on October 9th 2020\n")
+        print("Operating in: \n")
+        numguilds = 0
+
+        for guild in self.guilds:
+            print(f"{guild}")
+            numguilds+=1
+        print(f"I am in {numguilds} servers")
+            
+        print("\nCurrently keking  gnards")
         print("bot ready")
 
         meta = self.get_cog("Meta")
         await meta.set()
+
       else:
           print("bot reconnected")
 
 bot = MainBot()
-# @client.event
-# async def on_ready():
-#     print("ready but not in class")
-    
-#     #THE STATUS OF THE BOTTTT
-#     await client.change_presence(activity=discord.Activity(type = discord.ActivityType.listening, name = "to poopshitters|poo.help" ))
-
-#     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DECORATE THE SHIT WOOOOOO`~~~~~~~~~~~~~~~~~~~
-#     ascii_banner = pyfiglet.figlet_format("Poopshitter has awaken")
-#     print(ascii_banner)
-#     print("Coded by Esteban \"Chief\" Schmitt on October 9th 2020\n")
-#     print("Operating in: \n")
-#     numguilds = 0
-
-#     for guild in client.guilds:
-#         print(f"{guild}")
-#         numguilds+=1
-#     print(f"I am in {numguilds} servers")
-           
-#     print("\nCurrently keking  gnards")
 
 
-#    #await channel.send("I have arrived...")
-
-# #THIS IS WHEN THE BOT GETS DDOSED OR SOME SHIT
-# @client.event
-# async def on_disconnect():
-#     print("I got funnied...")
-
-# @client.command()
-# @commands.has_permissions(manage_messages = True)
-# async def clear(ctx,amount = 10):
-#     if ctx.author.id in bannedMembers:  
-#         await ctx.send("stfu")
-#     else:
-#         list_of_responses =["NO CLIPPING FOR YOU","JUST SAVED YOUR ASS","WHAT THE HELL WAS THAT"]
-#         if amount > 150 and ctx.author.id not in list_of_admins:
-#             await ctx.send("HELL NO THATS A LOT OF SHIT")
-#         else:
-#             await ctx.channel.purge(limit = amount + 1)
-
-#             await ctx.channel.send("***{}***".format(random.choice(list_of_responses)))
-
-# #for when someone is typing, i.e. estebanlol
-# # @client.event
-# # async def on_typing(channel,user,when):
-# #     if user.id == 227090540771016706:
-# #         await user.send("stfu nigger")    
-
-# #THIS IS IF U MESS WITH THE BOT, NOBODY MESSES WITH TERROWIN
-# listOfClipees = [673403025410359337,    
-#                 # 426549783864279040
-#                 ]
-
-# @client.event
-# async def on_message_delete(message):
-#     estelogs = client.get_channel(809099936720617548)
-#     ghostLogs = client.get_channel(809099936180338742)
-#     if len(message.mentions) > 0 and message.guild.id == 809099935663652954:
-#         embed = discord.Embed(title = 'Ghost Ping Found!',description = '', color = discord.Color.dark_blue())
-#         embed.add_field(name = "User:",value = message.author,inline = True)
-#         embed.add_field(name = "Message:",value = message.content,inline = True)
-#         embed.set_thumbnail(url = client.user.avatar_url)
-
-#         d = datetime.now()
-#         timezone = pytz.timezone("America/New_York")
-#         d_aware = timezone.localize(d)
-        
-#         embed.timestamp = d_aware
-        
-#         await ghostLogs.send(embed = embed)
-      
-#     #clipping ppl i.e. estebanlol
-#     if message.author.id in listOfClipees and not message.content.startswith("https") : 
-#         embed = discord.Embed(title = '',description = f'**{message.author.mention} sent a message in {message.channel.mention} in {message.guild}**\n {message.content}',color = discord.Color.dark_blue())
-#         embed.set_author(name = message.author,icon_url = message.author.avatar_url)
-            
-#         await estelogs.send(embed=embed)
-    
-# @client.event
-# async def on_message(message):
-#     logs = client.get_channel(809099936720617548)
-    
-#     #nobody disses my bot
-
-#     forbiddenWords = ["nigger","nigga","niggers","niggas"]
-#     for word in message.content.split():
-#         if message.content.lower() == "fuck you poopshitter":
-#             await message.channel.send('''***Ah nigga don't hate me cause I'm beautiful nigga. Maybe if you got rid of that old yee yee ass haircut, you'd get some bitches on yo dick.
-#                                             Oh, better yet, maybe Tanisha'll call your dog ass if she stops fuckin' with that brain surgeon or lawyer she fucking with. Niiggaaa***''')
-#             break
-#     if message.author.id in listOfClipees:
-#         if message.content.startswith("https") or message.content.startswith("cdn") or len(message.attachments) != 0 and message.channel.id != 784152789042593832:
-#             for attachment in message.attachments:
-#                 await logs.send(f"{message.author} sent this: {attachment.url} in {message.channel.mention} in the server **{message.guild}**")
-#             if message.content.startswith("https") or message.content.startswith("cdn"):
-#                 await logs.send(f"{message.author} sent this {message.content} in {message.channel.mention} in the server **{message.guild}**")
-        
-#     if isinstance(message.channel, discord.channel.DMChannel) and message.author != client.user:
-#         await message.channel.send("https://tenor.com/view/dono-wall-talking-wall-bricks-gif-17741481")
-#         # elif word.lower() in forbiddenWords:
-#         #     await message.author.send("nword bad")
-#         #     print(f"send nword response to {message.author.name}")  
-
-#     await client.process_commands(message)
 
 
-# #THIS GETS THE PING OF WHATEVER THE FUCK MONOTONIC IS
-# @client.command()
-# async def ping(ctx):
-#     await ctx.send(f"**PONG** {round(client.latency * 1000)}ms")
+
+
+
+
+
+
+
 
 
 # #HELP FUNCTION WOOOOE EMBED SHIT
