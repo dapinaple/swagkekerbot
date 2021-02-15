@@ -1,6 +1,7 @@
 from discord.ext.commands import Cog,command
 from discord.utils import get
 from discord import Embed, Color
+from discord.ext.menus import MenuPages, ListPageSource
 from typing import Optional
 
 def syntax(command):
@@ -13,26 +14,57 @@ def syntax(command):
             params.append(f"[{key}]" if "NoneType" in str(value) else f"<{key}>")
 
     params = " ".join(params)
-    return f"''' {cmd_and_aliases} {params}'''"
+    return f"``` {cmd_and_aliases} {params}```"
+
+class HelpMenu(ListPageSource):
+    def __init__(self,ctx,data):
+        self.ctx = ctx
+
+        super().__init__(data,per_page=3)
+    async def write_page(self,menu,fields=[]):
+        offset = (menu.current_page*self.per_page)+1
+        len_data = len(self.entries)
+        
+        embed = Embed(title = "Help",
+                     description = "Poopshitter help dialog",
+                     color = Color.dark_blue())
+        embed.set_thumbnail(url=self.ctx.guild.me.avatar_url)
+        embed.set_footer(text=f"{offset:,} - {min(len_data, offset+self.per_page-1):,} of {len_data:,} commands.")
+
+        for name,value in fields:
+            embed.add_field(name = f"poo.{value}", value = name, inline = False)
+
+        return embed
+    async def format_page(self, menu, entries):
+        fields = []
+
+        for entry in entries:
+            fields.append((entry.brief or "No description", syntax(entry)))
+        return await self.write_page(menu,fields)
+
 
 class Help(Cog):
     def __init__(self,bot):
         self.bot = bot
         self.bot.remove_command("help")
+        self.show_hidden = False
 
 
     async def cmd_help(self,ctx,command):
         embed = Embed(title = f"Command `{command}` ",
                         description = syntax(command),
                         color = Color.dark_blue())
-        embed.add_field(name = "Command description",value = command.help)
+        embed.add_field(name = "Command description:",value = command.brief)
         await ctx.send(embed = embed)
 
-    @command(name = "help",aliases = ["helpme","ineedhelp"])
+    @command(name = "help",brief = "Shows this message", hidden = True)
     async def show_help(self,ctx,cmd:Optional[str]):
-        """Shows this message"""
+        self.show_hidden = True if ctx.guild.id == 809099935663652954 else False
         if cmd is None:
-            pass
+            menu = MenuPages(source = HelpMenu(ctx,list(self.bot.commands)),
+                            delete_message_after = True,
+                            timeout = 60.0)
+            await menu.start(ctx)
         else:
             if(command := get(self.bot.commands,name=cmd)):
                 await self.cmd_help(ctx,command)
