@@ -22,7 +22,9 @@ class Logs(Cog):
             self.ghostLogs = self.bot.get_channel(809099936180338742)
             print(f"ghost logs is {self.ghostLogs}")
             self.bot.cogs_ready.ready_up("log")
-            
+    @Cog.listener()
+    async def on_guild_join(guild):
+        print(f"I joined {guild}")        
 
     @Cog.listener()
     async def on_message(self,message):
@@ -32,8 +34,8 @@ class Logs(Cog):
         forbiddenWords = ["nigger","nigga","niggers","niggas"]
         for word in message.content.split():
             if message.content.lower() == "fuck you poopshitter":
-                await message.channel.send('''***Ah nigga don't hate me cause I'm beautiful nigga. Maybe if you got rid of that old yee yee ass haircut, you'd get some bitches on yo dick.
-                                                Oh, better yet, maybe Tanisha'll call your dog ass if she stops fuckin' with that brain surgeon or lawyer she fucking with. Niiggaaa***''')
+                await message.channel.send('***Ah nigga don\'t hate me cause I\'m beautiful nigga. Maybe if you got rid of that old yee yee ass haircut, you\'d get some bitches on yo dick.Oh, better yet, maybe Tanisha\'ll call your dog ass if she stops fuckin\' with that brain surgeon or lawyer she fucking with. Niiggaaa***')
+                                                
                 break
         if message.author.id in self.listOfClipees:
             if message.content.startswith("https") or message.content.startswith("cdn") or len(message.attachments) != 0 and message.channel.id != 784152789042593832:
@@ -57,8 +59,8 @@ class Logs(Cog):
             if len(message.mentions) > 0 and message.guild.id == 809099935663652954:
                 embed = Embed(title = 'Ghost Ping Found!',description = '', color = Color.dark_blue())
                 embed.add_field(name = "User:",value = message.author,inline = True)
-                embed.add_field(name = "Message:",value = message.content,inline = True)
-                embed.set_thumbnail(url = self.bot.user.avatar_url)
+                embed.add_field(name = "Message:",value = f"{message.content} ",inline = True)
+                embed.set_thumbnail(url = message.author.avatar_url)
 
                 d = datetime.now()
                 timezone = pytz.timezone("America/New_York")
