@@ -1,11 +1,18 @@
-from discord.ext.commands import command, Cog,has_permissions
 from random import choice
-from discord import Member
+from typing import Optional
+
+from discord import Color, Embed, Member
+from discord.ext.commands import Cog, command, has_permissions
+from pytz import timezone
+
+
 class Commands(Cog):
     def __init__(self,bot):
         self.bot = bot
         self.bannedMembers = [438809594291027969,
                              227090540771016706]
+
+                             
         self.list_of_admins = [426549783864279040]          
 
     
@@ -102,12 +109,35 @@ class Commands(Cog):
         elif coin_flip == 0:
             await ctx.send("***Heads***")
         else:
-            await ctx.send("***Tails***")       
+            await ctx.send("***Tails***")   
+
+    @command(name = "dylan",brief = "dylan")
+    async def dylan(self,ctx):
+        if ctx.author.id in self.bannedMembers:
+               await ctx.send("nope")
+        else:
+            await ctx.send("https://cdn.discordapp.com/attachments/814191607057874944/814899965775708170/unknown.png")
+
     @command(name = "getservericon",brief = "sends the servers icon")
     async def getservericon(self,ctx):
         if ctx.author.id in self.bannedMembers:
             await ctx.send("no")
         else:
             await ctx.send(ctx.guild.icon_url)
+
+    @command(name = "whois",brief = "gets some info on a member")
+    async def whois(self,ctx, member: Optional[Member]):
+        if not member:
+            member = ctx.author
+        embed = Embed(title = '',description = member.mention, inline = True,color = member.color)
+        embed.set_author(name = member,icon_url= member.avatar_url)
+        joined_at = member.joined_at.astimezone(timezone("US/Eastern"))
+        embed.add_field(name = "Joined", value = member.joined_at.strftime("%a, %b %d, %Y %I:%M %p"))
+        embed.add_field(name = "Account Created",value = member.created_at.astimezone(timezone("US/Eastern")).strftime("%a, %b %d, %Y %I:%M %p"))
+        embed.set_thumbnail(url = member.avatar_url)
+        embed.add_field(name = f"Roles[{len(member.roles)}]",value = ' '.join(str(r.mention) for r in member.roles[:0:-1]), inline = False)
+
+        await ctx.send(embed = embed)
+
 def setup(bot):
     bot.add_cog(Commands(bot))
