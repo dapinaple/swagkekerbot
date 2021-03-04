@@ -22,7 +22,10 @@ class Meta(Cog):
         type = getattr(ActivityType,_type,ActivityType.listening)
         ))
         
-
+    @Cog.listener()
+    async def on_guild_join(guild):
+        print(f"I joined {guild}") 
+        
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:
