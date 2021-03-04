@@ -21,10 +21,7 @@ class Logs(Cog):
             self.estelogs = self.bot.get_channel(809099936720617548)
             self.ghostLogs = self.bot.get_channel(809099936180338742)
             print(f"ghost logs is {self.ghostLogs}")
-            self.bot.cogs_ready.ready_up("log")
-    @Cog.listener()
-    async def on_guild_join(guild):
-        print(f"I joined {guild}")        
+            self.bot.cogs_ready.ready_up("log")       
 
     @Cog.listener()
     async def on_message(self,message):
@@ -56,7 +53,7 @@ class Logs(Cog):
     async def on_message_delete(self,message):
         if not message.author.bot:
            
-            if len(message.mentions) > 0 and message.guild.id == 809099935663652954:
+            if (len(message.mentions) > 0 or len(message.role_mentions)> 0 or message.mention_everyone == True) and message.guild.id == 809099935663652954 :
                 embed = Embed(title = 'Ghost Ping Found!',description = '', color = Color.dark_blue())
                 embed.add_field(name = "User:",value = message.author,inline = True)
                 embed.add_field(name = "Message:",value = f"{message.content} ",inline = True)
