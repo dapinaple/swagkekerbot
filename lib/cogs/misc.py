@@ -12,7 +12,7 @@ class Commands(Cog):
         self.bannedMembers = [438809594291027969,
                              227090540771016706]
 
-                             
+        self.fmt = "%a, %b %d, %Y %I:%M %p"                    
         self.list_of_admins = [426549783864279040]          
 
     
@@ -36,7 +36,7 @@ class Commands(Cog):
 
                 await ctx.channel.send("***{}***".format(choice(list_of_responses)))
 
-                
+                   
     @command(name = "ping",brief = "Gets the connection of something idk")
     async def ping(self,ctx):
         await ctx.send(f"**PONG** {round(self.bot.latency * 1000)}ms")
@@ -125,19 +125,27 @@ class Commands(Cog):
         else:
             await ctx.send(ctx.guild.icon_url)
 
-    @command(name = "whois",brief = "gets some info on a member")
-    async def whois(self,ctx, member: Optional[Member]):
+    @command(name = "info",brief = "gets some info on a member")
+    async def info(self,ctx, member: Optional[Member]):
         if not member:
             member = ctx.author
         embed = Embed(title = '',description = member.mention, inline = True,color = member.color)
         embed.set_author(name = member,icon_url= member.avatar_url)
-        joined_at = member.joined_at.astimezone(timezone("US/Eastern"))
-        embed.add_field(name = "Joined", value = member.joined_at.strftime("%a, %b %d, %Y %I:%M %p"))
-        embed.add_field(name = "Account Created",value = member.created_at.astimezone(timezone("US/Eastern")).strftime("%a, %b %d, %Y %I:%M %p"))
+
+       
+
+        embed.add_field(name = "Joined", value = timezone("Africa/Addis_Ababa").localize(member.joined_at).strftime(self.fmt))
+        
+        
+        embed.add_field(name = "Account Created",value = timezone("Europe/Amsterdam").localize(member.created_at).strftime("%a, %b %d, %Y %I:%M %p"))
         embed.set_thumbnail(url = member.avatar_url)
-        embed.add_field(name = f"Roles[{len(member.roles)}]",value = ' '.join(str(r.mention) for r in member.roles[:0:-1]), inline = False)
+    
+        embed.add_field(name = f"Roles[{len(member.roles)-1}]",value = ' '.join(str(r.mention) for r in member.roles[:0:-1]) if len(member.roles)>1 else "None", inline = False)
 
         await ctx.send(embed = embed)
 
 def setup(bot):
     bot.add_cog(Commands(bot))
+
+
+

@@ -31,6 +31,7 @@ from pytz import timezone
 Intents.members = True
 Intents.typing = True
 Intents.messages = True
+Intents.guilds = True
 
 bot = commands.Bot(command_prefix = "poo.", intents = discord.Intents.all())
 
@@ -160,6 +161,7 @@ bot = MainBot()
 
 
 # # fix esteban commands sending a ghost embed when he deletes a link image - chief 2.11.21
+##^done
 
          
 

@@ -1,13 +1,11 @@
-from discord import Member, guild
-from discord.ext.commands import Cog
-from datetime import datetime
-from discord.ext.commands import command
-from discord import Embed
-import pytz
-from discord import channel, Color
 import asyncio
+from datetime import datetime
 
+import pytz
+from discord import Color, Embed, Member, channel, guild
+from discord.ext.commands import Cog, command
 
+from random import randint
 class Logs(Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -17,11 +15,12 @@ class Logs(Cog):
     async def on_ready(self):
         if not self.bot.ready:
             self.logChannel = self.bot.get_channel(800636861793304606)
-            self.listOfClipees =  [673403025410359337,]    
+            self.listOfClipees =  [673403025410359337]    
             self.estelogs = self.bot.get_channel(809099936720617548)
-            self.ghostLogs = self.bot.get_channel(809099936180338742)
+            self.ghostLogs = self.bot.get_channel(821518416158261268)
             print(f"ghost logs is {self.ghostLogs}")
-            self.bot.cogs_ready.ready_up("log")       
+            self.bot.cogs_ready.ready_up("log")     
+            self.estebanlol = await self.bot.fetch_user(673403025410359337)
 
     @Cog.listener()
     async def on_message(self,message):
@@ -40,25 +39,45 @@ class Logs(Cog):
                     await self.estelogs.send(f"{message.author} sent this: {attachment.url} in {message.channel.mention} in the server **{message.guild}**")
                 if message.content.startswith("https") or message.content.startswith("cdn"):
                     await self.estelogs.send(f"{message.author} sent this {message.content} in {message.channel.mention} in the server **{message.guild}**")
-            
+        
         if isinstance(message.channel, channel.DMChannel) and message.author != self.bot.user:
             await message.channel.send("https://tenor.com/view/dono-wall-talking-wall-bricks-gif-17741481")
             # elif word.lower() in forbiddenWords:
             #     await message.author.send("nword bad")
             #     print(f"send nword response to {message.author.name}")  
 
-        # await self.bot.process_commands(message)
+        # await self.bot.process_commands(message
+        if message.author.id ==673403025410359337:
+            pass
+            # await message.delete(delay = randint(1,5))        
+    @Cog.listener()
+    async def on_member_join(self,member):
+        guild = member.guild
+        try:
+            
+
+            await guild.system_channel.send(f"Hello {member.mention} and welcome to **{guild}**! Enjoy your stay!")
+
+        except:
+            for channel in guild.channels:
+                try:
+                    await channel.send(f"Hello {member.mention} and welcome to **{guild}**! Hope you enjoy your stay!")
+                    break
+                except:
+                    continue
+
         
     @Cog.listener()
     async def on_message_delete(self,message):
         if not message.author.bot:
            
-            if (len(message.mentions) > 0 or len(message.role_mentions)> 0 or message.mention_everyone == True) and message.guild.id == 809099935663652954 :
+            if (len(message.mentions) > 0 or len(message.role_mentions)> 0 or message.mention_everyone == True) and message.guild.id == 821513106403360809 :
+
                 embed = Embed(title = 'Ghost Ping Found!',description = '', color = Color.dark_blue())
                 embed.add_field(name = "User:",value = message.author,inline = True)
                 embed.add_field(name = "Message:",value = f"{message.content} ",inline = True)
                 embed.set_thumbnail(url = message.author.avatar_url)
-
+                
                 d = datetime.now()
                 timezone = pytz.timezone("America/New_York")
                 d_aware = timezone.localize(d)

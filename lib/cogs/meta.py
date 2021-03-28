@@ -6,7 +6,7 @@ from discord import Activity, ActivityType,Embed
 class Meta(Cog):
     def __init__(self,bot):
         self.bot=bot
-        self.message = "Bot Under construction"
+        self.message = "Bot| poo.help"
 
         # bot.scheduler.add_job(self.set, CronTrigger(second=5))
     
@@ -21,11 +21,20 @@ class Meta(Cog):
         name = _name,
         type = getattr(ActivityType,_type,ActivityType.listening)
         ))
-        
+
+    @command(name = "load",brief = "loads an extension", hidden = True)
+    async def load(self,ctx,*file):
+        if ctx.author.id !=426549783864279040:
+            pass
+        else:
+            pass
+
     @Cog.listener()
-    async def on_guild_join(guild):
+    async def on_guild_join(self,guild):
         print(f"I joined {guild}") 
-        
+    @Cog.listener()
+    async def on_guild_remove(self,guild):
+        print(f"I left {guild}") 
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:
