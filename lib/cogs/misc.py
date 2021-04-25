@@ -4,6 +4,8 @@ from typing import Optional
 from discord import Color, Embed, Member
 from discord.ext.commands import Cog, command, has_permissions
 from pytz import timezone
+from ..db import db
+
 
 
 class Commands(Cog):
@@ -13,7 +15,8 @@ class Commands(Cog):
                              227090540771016706]
 
         self.fmt = "%a, %b %d, %Y %I:%M %p"                    
-        self.list_of_admins = [426549783864279040]          
+        self.list_of_admins = [426549783864279040]  
+        self._max_clear = 300        
 
     
     async def on_ready(self):
@@ -21,22 +24,32 @@ class Commands(Cog):
             self.bot.cogs_ready.ready_up("misc")
 
 
+
+
+
+
     @has_permissions(manage_messages = True)
-    @command(name = "clear",brief = "Clears the chat of 10 or <amount> messages")
-    async def clear(self,ctx,amount = 10):
+    @command(name = "clear",brief = "Clears the chat of 10 or <amount> messages\nWhen deleting a member's messages, it will delete **all messages up to 2 weeks prior** to the clear command")
+    async def clear(self,ctx,member: Optional[Member], amount=10):
         
         if ctx.author.id in self.bannedMembers:  
             await ctx.send("stfu")
         else:
-            list_of_responses =["NO CLIPPING FOR YOU","JUST SAVED YOUR ASS","WHAT THE HELL WAS THAT"]
-            if amount > 150 and ctx.author.id not in self.list_of_admins:
+            list_of_responses =["GONE LIKE THE SENSE OF SMELL","CHAT IS GONE","DESTROYED BEYOND MAX BELIEF","OBLITERATED THE CHAT "]
+            if amount > self._max_clear and ctx.author.id not in self.list_of_admins:
                 await ctx.send("HELL NO THATS A LOT OF SHIT")
+
             else:
-                await ctx.channel.purge(limit = amount + 1)
+                await ctx.channel.purge(limit = amount+1 if not member else None, check = lambda message: message.author == member if member else True)
 
                 await ctx.channel.send("***{}***".format(choice(list_of_responses)))
+              
+    
 
-                   
+                    
+
+
+                  
     @command(name = "ping",brief = "Gets the connection of something idk")
     async def ping(self,ctx):
         await ctx.send(f"**PONG** {round(self.bot.latency * 1000)}ms")
@@ -99,7 +112,7 @@ class Commands(Cog):
                 response = choice(responses)
 
                 await ctx.send(response)
-                print(f"{ctx.author.name} asked poopshitter = {message}")       
+                print(f"{ctx.author.name} asked poopshitter: {message}")       
     @command(name = "flip",brief ="flips a coin")
     async def flip(self,ctx):
         coin_flip = choice([0,1])
@@ -134,10 +147,10 @@ class Commands(Cog):
 
        
 
-        embed.add_field(name = "Joined", value = timezone("Africa/Addis_Ababa").localize(member.joined_at).strftime(self.fmt))
+        embed.add_field(name = "Joined", value = timezone("America/New_York").localize(member.joined_at).strftime(self.fmt))
         
         
-        embed.add_field(name = "Account Created",value = timezone("Europe/Amsterdam").localize(member.created_at).strftime("%a, %b %d, %Y %I:%M %p"))
+        embed.add_field(name = "Account Created",value = timezone("America/New_York").localize(member.created_at).strftime("%a, %b %d, %Y %I:%M %p"))
         embed.set_thumbnail(url = member.avatar_url)
     
         embed.add_field(name = f"Roles[{len(member.roles)-1}]",value = ' '.join(str(r.mention) for r in member.roles[:0:-1]) if len(member.roles)>1 else "None", inline = False)

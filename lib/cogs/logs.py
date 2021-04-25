@@ -16,7 +16,7 @@ class Logs(Cog):
         if not self.bot.ready:
             self.logChannel = self.bot.get_channel(800636861793304606)
             self.listOfClipees =  [673403025410359337]    
-            self.estelogs = self.bot.get_channel(809099936720617548)
+            self.estelogs = self.bot.get_channel(826113307450277929)
             self.ghostLogs = self.bot.get_channel(821518416158261268)
             print(f"ghost logs is {self.ghostLogs}")
             self.bot.cogs_ready.ready_up("log")     
@@ -47,9 +47,9 @@ class Logs(Cog):
             #     print(f"send nword response to {message.author.name}")  
 
         # await self.bot.process_commands(message
-        if message.author.id ==673403025410359337:
+        if message.author.id ==438809594291027969:
             pass
-            # await message.delete(delay = randint(1,5))        
+            # await message.author.send("https://tenor.com/view/pepe-laugh-he-doesnt-know-pepe-gif-14019260")       
     @Cog.listener()
     async def on_member_join(self,member):
         guild = member.guild

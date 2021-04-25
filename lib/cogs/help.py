@@ -6,6 +6,7 @@ from discord.ext.menus import ListPageSource, MenuPages
 from discord.utils import get
 
 
+
 def syntax(command):
     cmd_and_aliases = "|".join([str(command),*command.aliases])
     

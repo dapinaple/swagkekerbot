@@ -3,6 +3,9 @@ from discord.ext.commands import command
 from apscheduler.triggers.cron import CronTrigger
 
 from discord import Activity, ActivityType,Embed
+
+
+
 class Meta(Cog):
     def __init__(self,bot):
         self.bot=bot
