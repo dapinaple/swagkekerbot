@@ -3,43 +3,45 @@ import os
 import random
 import string
 import time
-from datetime import date
-
-from datetime import datetime
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import date, datetime
 from glob import glob
+
 import discord
 import pyfiglet
+import pytz
 import youtube_dl
-
-
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from discord import Member, guild, Intents
+from discord import Intents, Member, guild
 from discord.ext import commands, tasks
-from discord.ext.commands import BucketType, CommandOnCooldown, cooldown
-from discord.ext.commands import Bot 
+from discord.ext.commands import (BadArgument, Bot, BucketType,
+                                  CommandNotFound, CommandOnCooldown,
+                                  MissingRequiredArgument, cooldown,
+                                  when_mentioned_or)
 from discord.permissions import Permissions
 from discord.utils import get
 from discord.voice_client import VoiceClient
-import pytz
 from pytz import timezone
-# from swagkeker.lib.db.db import db
 
-
+from ..db import db
 
 Intents.members = True
 Intents.typing = True
 Intents.messages = True
 Intents.guilds = True
 
-bot = commands.Bot(command_prefix = "poo.", intents = discord.Intents.all())
 
 
 
 #ONLY TO TEST IF THE BOT IS ONLINE OKKKK
 COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
-    
+IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument)
+
+def get_prefix(bot,message):
+    prefix = db.field("SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    return when_mentioned_or(prefix)(bot,message)
+
+
 class Ready(object):
     def __init__(self):
         for cog in COGS:
@@ -60,21 +62,22 @@ class MainBot(Bot):
         self.guild = None
         self.scheduler = AsyncIOScheduler()
 
-        # USING THE DATABASE. WE WILL SET UP LATER. maybe
-        # try:
-        #     with open("./data/banlist.txt","r",encoding ="utf-8")as f:
-        #         self.banlist=[int(line.strip()) for line in f.readlines()]
-        # except FileNotFoundError:
-        #     self.banlist=[]
-        # db.autosave(self.scheduler)
+       # USING THE DATABASE. WE WILL SET UP LATER. maybe
+        try:
+            with open("./data/banlist.txt","r",encoding ="utf-8")as f:
+                self.banlist=[int(line.strip()) for line in f.readlines()]
+        except FileNotFoundError:
+            self.banlist=[]
+        db.autosave(self.scheduler)
 
-        super().__init__(command_prefix='poo.',intents = discord.Intents.all())
+        super().__init__(command_prefix=get_prefix,intents = discord.Intents.all())
         super().remove_command("help")
     def setup(self):
         for cog in COGS:
             self.load_extension(f"lib.cogs.{cog}")
             print(f"cog {cog} loaded")
         print("setup complete")
+
     def run(self):
         print("running setup...")
         self.setup()
@@ -93,6 +96,16 @@ class MainBot(Bot):
         
         await self.stdout.send("an error occured")
         raise
+    async def on_command_error(self, ctx, exc):
+	    if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
+		    pass
+
+
+    def update_db(self):
+        db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
+					 ((guild.id,) for guild in self.guilds))
+
+        db.commit()
 
     async def on_ready(self):
         
@@ -101,14 +114,19 @@ class MainBot(Bot):
         
         await asyncio.sleep(0.5)
         self.ready = True
-        # self.scheduler.start()
-        # we'll use this once we have the bot say how many ppl and stuff
-        # that needs to be updated
+        self.scheduler.start()
+
+
+        self.update_db()
+
+       
         ascii_banner = pyfiglet.figlet_format("Poopshitter has awoken")
         print(ascii_banner)
         print("Coded by Esteban \"Chief\" Schmitt on October 9th 2020\n")
         print("Operating in: \n")
         numguilds = 0
+
+
 
         for guild in self.guilds:
             print(f"{guild}")
@@ -124,6 +142,8 @@ class MainBot(Bot):
       else:
           print("bot reconnected")
 
+    
+    
 bot = MainBot()
 
 
