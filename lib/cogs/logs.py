@@ -6,6 +6,8 @@ from discord import Color, Embed, Member, channel, guild
 from discord.ext.commands import Cog, command
 
 from random import randint
+from ..db import db
+
 class Logs(Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -71,23 +73,33 @@ class Logs(Cog):
     async def on_message_delete(self,message):
         if not message.author.bot:
            
-            if (len(message.mentions) > 0 or len(message.role_mentions)> 0 or message.mention_everyone == True) and message.guild.id == 821513106403360809 :
+            if (len(message.mentions) > 0 or len(message.role_mentions)> 0 or message.mention_everyone == True):
 
-                embed = Embed(title = 'Ghost Ping Found!',description = '', color = Color.dark_blue())
-                embed.add_field(name = "User:",value = message.author,inline = True)
-                embed.add_field(name = "Message:",value = f"{message.content} ",inline = True)
-                embed.set_thumbnail(url = message.author.avatar_url)
+                channelid = db.field('SELECT ghostID from guilds WHERE GuildID = ?',message.guild.id)
+
+                if self.bot.get_channel(channelid):
+                    ghostchannel = self.bot.get_channel(channelid)
+                    
+
                 
-                d = datetime.now()
-                timezone = pytz.timezone("America/New_York")
-                d_aware = timezone.localize(d)
+
+
+
+                    embed = Embed(title = 'Ghost Ping Found!',description = '', color = Color.dark_blue())
+                    embed.add_field(name = "User:",value = message.author,inline = True)
+                    embed.add_field(name = "Message:",value = f"{message.content} ",inline = True)
+                    embed.set_thumbnail(url = message.author.avatar_url)
                 
-                embed.timestamp = d_aware
+                    d = datetime.now()
+                    timezone = pytz.timezone("America/New_York")
+                    d_aware = timezone.localize(d)
                 
-                await self.ghostLogs.send(embed = embed)
+                    embed.timestamp = d_aware
+                
+                    await ghostchannel.send(embed = embed)
             
             #clipping ppl i.e. estebanlol
-            if message.author.id in self.listOfClipees and not message.content.startswith("https") : 
+            if message.author.id in self.listOfClipees and not message.content.startswith("https") :  
                 embed =Embed(title = '',description = f'**{message.author.mention} sent a message in {message.channel.mention} in {message.guild}**\n {message.content}',color = Color.dark_blue())
                 embed.set_author(name = message.author,icon_url = message.author.avatar_url)
                     

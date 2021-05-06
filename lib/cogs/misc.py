@@ -75,7 +75,7 @@ class Commands(Cog):
         if ctx.author.id in self.bannedMembers:
                 await ctx.send("nope")
         else:
-            await ctx.send("https://cdn.discordapp.com/attachments/747289514891804742/783757708486115358/unknown.png")
+            await ctx.send("https://cdn.discordapp.com/attachments/800636511002427432/837699390860427284/unknown.png    ")
     # #8 BALLLLLLLLLLLLLLLLLLL
 
     @command(name = '_8ball', brief = "predicts the future with 100% accuracy.",aliases= ["8ball"])

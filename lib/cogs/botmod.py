@@ -2,10 +2,11 @@ from apscheduler.triggers.cron import CronTrigger
 from discord import Color, Embed, Member, Permissions, User
 from discord.ext.commands import (BucketType, Cog, CommandOnCooldown, Greedy,
                                   check, command, cooldown,
-                                  has_guild_permissions, has_permissions)
+                                  has_guild_permissions, has_permissions,ChannelNotFound)
 
 from ..db import db
 from datetime import datetime
+from typing import Optional
 
 
 
@@ -38,14 +39,12 @@ class BotMod(Cog):
 
         dayssince = datetime.now().date()-date
 
-        channel = await self.bot.fetch_channel(835365059499786240)
+        channel = self.bot.get_channel(835365059499786240)
 
-        msg = await channel.fetch_message(835365240468275261)
+        msg = channel.get_partial_message(835365240468275261)
 
         embed = Embed(title = "Days since the Funny",description=str(dayssince.days),color = Color.dark_blue())
         embed.set_thumbnail(url = channel.guild.icon_url)
-        print(datetime.now().date()-date)
-        print(dayssince.days)
 
         await msg.edit(embed = embed)
 
@@ -62,7 +61,7 @@ class BotMod(Cog):
     @isBotAdmin
     async def funnyhappen(self,ctx):
         db.execute('UPDATE modusage SET dateOfFunny = ? WHERE daysSinceFunny = ?',datetime.now().date(),1)
-        
+        await self.checkdayssince()
         db.commit()
 
     @command(name = "setprefix",brief = "sets the servers command prefix")
@@ -70,12 +69,43 @@ class BotMod(Cog):
     async def setprefix(self,ctx,prefix: str):
         db.execute('UPDATE guilds SET Prefix = ? WHERE GuildID = ?',prefix,ctx.guild.id)
         db.commit()
+
+    @command(name = "setghost",brief = "sets the ghost ping channel to the current channel")
+    @has_guild_permissions(administrator = True)
+    async def setghost(self,ctx):
+
+        ghostID =  ctx.channel.id
+        
+            
+
+        db.execute('UPDATE guilds SET ghostID = ? WHERE GuildID = ?',ghostID,ctx.guild.id)
+        db.commit()
     
     @command(name = "getprefix",brief = "gets the servers command prefix")
     async def getprefix(self,ctx):
         prefix = db.field('SELECT Prefix FROM guilds WHERE GuildID = ?',ctx.guild.id)
         await ctx.send(f'The prefix for this server is "{prefix}"')
 
+    @command(name = "getguildid",brief = "gets guildname from id",hidden =True)
+    async def getguild(self,ctx,guildid: int):
+        print(self.bot.get_guild(guildid))
+
+    @command(name = "tempunban",brief = "unbans from a guild ",hidden = True)
+    @isBotAdmin
+    async def unban(self,ctx, id: int,guildid: int):
+        
+        user = self.bot.get_user(id)
+        guild = self.bot.get_guild(guildid)
+        await guild.unban(user)
+        print(f"unbanned {user.name}")
+    
+    @command(name = "createinv",brief ="creates invite to a server",hidden = True)
+    @isBotAdmin
+    async def createinv(self,ctx,guildID: int):
+        guild = self.bot.get_guild(guildID)
+        channel = guild.channels[0]
+        await ctx.author.send( await channel.create_invite())
+       
 
         
         

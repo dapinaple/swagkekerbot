@@ -3,7 +3,7 @@ from discord.ext.commands import command
 from apscheduler.triggers.cron import CronTrigger
 
 from discord import Activity, ActivityType,Embed
-
+from ..db import db
 
 
 class Meta(Cog):
@@ -35,6 +35,8 @@ class Meta(Cog):
     @Cog.listener()
     async def on_guild_join(self,guild):
         print(f"I joined {guild}") 
+        db.execute("INSERT INTO guilds (GuildID) VALUES(?)",guild.id)
+
     @Cog.listener()
     async def on_guild_remove(self,guild):
         print(f"I left {guild}") 

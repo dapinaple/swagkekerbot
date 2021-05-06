@@ -1,3 +1,10 @@
 *.db
 *.db-journal
 __pycache__
+*.txt
+*.sqlite
+*.sql
+*.suo
+.vs
+.vscode
+settings.json
