@@ -25,17 +25,13 @@ class Meta(Cog):
         type = getattr(ActivityType,_type,ActivityType.listening)
         ))
 
-    @command(name = "load",brief = "loads an extension", hidden = True)
-    async def load(self,ctx,*file):
-        if ctx.author.id !=426549783864279040:
-            pass
-        else:
-            pass
 
     @Cog.listener()
     async def on_guild_join(self,guild):
         print(f"I joined {guild}") 
-        db.execute("INSERT INTO guilds (GuildID) VALUES(?)",guild.id)
+        self.bot.update_db()
+
+       
 
     @Cog.listener()
     async def on_guild_remove(self,guild):

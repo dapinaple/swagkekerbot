@@ -21,21 +21,11 @@ def syntax(command):
 
 class HelpMenu(ListPageSource):
     def __init__(self,ctx,data):
-        self.ctx = ctx
-        self.entries_to_remove = len([i for i in data if i.hidden == True]) if ctx.author.id != 426549783864279040 else 0
-        
-        per_page = 3
-        
-        
-        
+        self.ctx = ctx  
 
         super().__init__(data,per_page=3)
         
 
-        if self.ctx.author.id == 426549783864279040:
-            self.hidden_items = per_page -1
-        else:
-            self.hidden_items = per_page -len([i for i in data if i.hidden == True]) 
 
     async def write_page(self,menu,fields=[]):
         offset = (menu.current_page*self.per_page)+1
@@ -46,7 +36,7 @@ class HelpMenu(ListPageSource):
                      description = "Poopshitter help dialog",
                      color = Color.dark_blue())
         embed.set_thumbnail(url=self.ctx.guild.me.avatar_url)
-        embed.set_footer(text=f"{offset:,} - {min(len_data, offset+self.hidden_items):,} of {len_data:,} commands.")
+        embed.set_footer(text=f"{offset:,} - {min(len_data, offset+self.per_page-1):,} of {len_data:,} commands.")
 
         for name,value in fields:
             embed.add_field(name = f"poo.{value}", value = name, inline = False)
@@ -58,19 +48,16 @@ class HelpMenu(ListPageSource):
         fields = []
 
         for entry in entries:
-            if entry.hidden == False or self.ctx.author.id == 426549783864279040:
-                fields.append((entry.brief or "No description", syntax(entry)))
-            else:
-                continue
-              
-        return await self.write_page(menu,fields)
+            fields.append((entry.brief or "No description", syntax(entry)))
+
+        return await self.write_page(menu, fields)
 
 
 class Help(Cog):
     def __init__(self,bot):
         self.bot = bot
         self.bot.remove_command("help")
-        self.show_hidden = False
+      
 
 
     async def cmd_help(self,ctx,command):
@@ -82,7 +69,7 @@ class Help(Cog):
 
     @command(name = "help",brief = "Shows this message")
     async def show_help(self,ctx,cmd:Optional[str]):
-        self.show_hidden = False
+       
         if cmd is None:
             menu = MenuPages(source = HelpMenu(ctx,list(self.bot.commands)),
                             delete_message_after = True,
