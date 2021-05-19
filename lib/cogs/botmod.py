@@ -80,6 +80,18 @@ class BotMod(Cog):
 
         db.execute('UPDATE guilds SET ghostID = ? WHERE GuildID = ?',ghostID,ctx.guild.id)
         db.commit()
+        await ctx.send("Ghost ping channel set!")
+
+    @command(name = "setintrochannel",brief = "sets the introduction channel to the current channel")
+    @has_guild_permissions(administrator = True)
+    async def introchannel(self,ctx):
+        
+        introchannel = ctx.channel.id
+
+        
+        db.execute('UPDATE guilds SET introChannel = ? WHERE GuildID = ?',introchannel,ctx.guild.id)
+        db.commit()
+        await ctx.send("Intro channel set!")
     
     @command(name = "getprefix",brief = "gets the servers command prefix")
     async def getprefix(self,ctx):

@@ -21,6 +21,7 @@ from discord.ext.commands import (BadArgument, Bot, BucketType,
 from discord.permissions import Permissions
 from discord.utils import get
 from discord.voice_client import VoiceClient
+from discord_slash import SlashCommand
 from pytz import timezone
 
 from ..db import db
@@ -62,7 +63,7 @@ class MainBot(Bot):
         self.guild = None
         self.scheduler = AsyncIOScheduler()
 
-       # USING THE DATABASE. WE WILL SET UP LATER. maybe
+       # USING THE DATABASE.
         try:
             with open("./data/banlist.txt","r",encoding ="utf-8")as f:
                 self.banlist=[int(line.strip()) for line in f.readlines()]
@@ -71,7 +72,10 @@ class MainBot(Bot):
         db.autosave(self.scheduler)
 
         super().__init__(command_prefix=get_prefix,intents = discord.Intents.all())
-        super().remove_command("help")
+        
+        
+        
+
     def setup(self):
         for cog in COGS:
             self.load_extension(f"lib.cogs.{cog}")
@@ -104,6 +108,8 @@ class MainBot(Bot):
     def update_db(self):
         db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
 					 ((guild.id,) for guild in self.guilds))
+        db.multiexec("INSERT OR IGNORE INTO users (UserID) VALUES (?)",
+                    ((user.id,) for user in self.users if not user.bot))
         db.commit()
         
 

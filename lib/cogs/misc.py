@@ -5,7 +5,8 @@ from discord import Color, Embed, Member
 from discord.ext.commands import Cog, command, has_permissions
 from pytz import timezone
 from ..db import db
-
+from pytz import timezone
+from discord.utils import get
 
 
 class Commands(Cog):
@@ -16,7 +17,9 @@ class Commands(Cog):
 
         self.fmt = "%a, %b %d, %Y %I:%M %p"                    
         self.list_of_admins = [426549783864279040]  
-        self._max_clear = 300        
+        self._max_clear = 500      
+
+        self.tz = timezone("US/Eastern")  
 
     
     async def on_ready(self):
@@ -58,8 +61,11 @@ class Commands(Cog):
     async def dav1(self,ctx):
         if ctx.author.id == 438809594291027969:
             await ctx.send("***OH GOD ITS YOU MOTHERFUCKING BITCH***")
+
         else:
-            await ctx.send(":pensive:***no...you're not him***")
+           
+            msg = await ctx.send(":pensive:***no...you're not him***")
+           
 
     @command(name = "getpfp",brief = "Gets the users pfp")
     async def getpfp(self,ctx, member: Member = None):
@@ -144,16 +150,22 @@ class Commands(Cog):
             member = ctx.author
         embed = Embed(title = '',description = member.mention, inline = True,color = member.color)
         embed.set_author(name = member,icon_url= member.avatar_url)
+        embed.set_thumbnail(url = member.avatar_url)
 
        
-
-        embed.add_field(name = "Joined", value = timezone("America/New_York").localize(member.joined_at).strftime(self.fmt))
-        
-        
-        embed.add_field(name = "Account Created",value = timezone("America/New_York").localize(member.created_at).strftime("%a, %b %d, %Y %I:%M %p"))
-        embed.set_thumbnail(url = member.avatar_url)
+        fields = [("Joined",member.joined_at.replace(tzinfo=timezone('UTC')).astimezone(timezone('US/Eastern')).strftime(self.fmt),True),
+                ("Account Created", member.created_at.replace(tzinfo=timezone('UTC')).astimezone(timezone('US/Eastern')).strftime(self.fmt),True),
+                ("Roles",' '.join(str(r.mention) for r in member.roles[:0:-1]) if len(member.roles)>1 else "None",False),
+                ("Bot?", member.bot,True),
+                ("Boosting?", bool(member.premium_since),True),
+                ("Nickname?", member.nick,True),
+                ("Status", f"{str(member.activity.type).split('.')[-1].title() if member.activity else 'N/A'} | {member.activity.name if member.activity else ''}", False)]
     
-        embed.add_field(name = f"Roles[{len(member.roles)-1}]",value = ' '.join(str(r.mention) for r in member.roles[:0:-1]) if len(member.roles)>1 else "None", inline = False)
+        embed.set_footer(text =f"UserID:{member.id}")
+     
+    
+        for name,value,inline in fields:
+            embed.add_field(name = name, value = value, inline = inline)
 
         await ctx.send(embed = embed)
 
