@@ -48,11 +48,7 @@ class Commands(Cog):
                 await ctx.channel.send("***{}***".format(choice(list_of_responses)))
               
     
-
-                    
-
-
-                  
+    
     @command(name = "ping",brief = "Gets the connection of something idk")
     async def ping(self,ctx):
         await ctx.send(f"**PONG** {round(self.bot.latency * 1000)}ms")

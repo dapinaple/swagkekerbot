@@ -275,58 +275,47 @@ class Mod(Cog):
     async def restore(self,ctx, channelID: int):
 
 
-        objectiveChannel = await self.bot.fetch_channel(channelID)
-        bot = await self.bot.fetch_user(738990452673478738)
-        confirm_primary = await self.bot.fetch_channel(814917487651979314)
-        await confirm_primary.send(f"Restore Request from **{ctx.author}** to restore {ctx.channel.mention} to {objectiveChannel.mention}. Please commit primary authorization \"Y\" or \"N\".")
-        messageconfirm_1 = await self.bot.wait_for('message',check = lambda message: message.channel.id ==814917487651979314 and not message.author.bot)
+        objectiveChannel = self.bot.get_channel(channelID)
+        bot = self.bot.get_user(738990452673478738)
+        confirm_primary = self.bot.get_channel(814917487651979314)
+        restoreMessage = await confirm_primary.send(f"Restore Request from **{ctx.author}** to restore {ctx.channel.mention} to {objectiveChannel.mention}. Please commit primary authorization \"Y\" or \"N\".")
+        await restoreMessage.add_reaction('✅')
+        await restoreMessage.add_reaction('❌')  
+            
         
-        
-        if messageconfirm_1.content.lower() == "y" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
-       
+        reaction,user = await self.bot.wait_for('reaction_add',check = lambda reaction,user: reaction.emoji == '✅' or reaction.emoji == '❌' and user.id == ctx.author.id and not user.bot)
+            
+           
+            
+        if reaction.emoji == '✅':
+
+            sourceChannel = ctx.channel
+            
+            messageOBJ = 0
+            messages = await sourceChannel.history(limit = 3000,oldest_first = True).flatten()
+            for message in messages:
+                message = await ctx.fetch_message(message.id)
+                if messageOBJ == 0:
+                    messageOBJ = await ctx.fetch_message(message.id)
                 
-       
+                          
+            
+                def date():
+                    local_timezone = pytz.timezone('US/Eastern')
+                    messageDate = messageOBJ.created_at.replace(tzinfo = pytz.utc)
+                    messageDate = messageDate.astimezone(local_timezone)
+                    date =datetime.strftime(messageDate,"%m/%d/%Y, %I:%M %p")
+                    return date
 
-                sourceChannel = ctx.channel
-                
-                messageOBJ = 0
-                messages = await sourceChannel.history(limit = 3000,oldest_first = True).flatten()
-                for message in messages:
-                    message = await ctx.fetch_message(message.id)
-                    if messageOBJ == 0:
-                        messageOBJ = await ctx.fetch_message(message.id)
-                    
-                        
+                if message.content.startswith("https") and not message.content.endswith(".gif"):
                     
                     
-                    
-                    def date():
-                        local_timezone = pytz.timezone('US/Eastern')
-                        messageDate = messageOBJ.created_at.replace(tzinfo = pytz.utc)
-                        messageDate = messageDate.astimezone(local_timezone)
-                        date =datetime.strftime(messageDate,"%m/%d/%Y, %I:%M %p")
-                        return date
-
-                    if message.content.startswith("https") and not message.content.endswith(".gif"):
+                    if len(message.attachments) > 0:
                         
-                        
-                        if len(message.attachments) > 0:
-                            
-                            for attachment in message.attachments:
+                        for attachment in message.attachments:
 
-                                embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
-                                embedAttachment.set_image(url = attachment.url)
-                                embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
-
-                                
-                        
-                                date = date()                        
-                                embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
-                                # await asyncio.sleep(SLEEPTIME)
-                                await objectiveChannel.send(embed=embedAttachment)
-                        else:
                             embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
-                            embedAttachment.set_image(url = message.content)
+                            embedAttachment.set_image(url = attachment.url)
                             embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
 
                             
@@ -335,13 +324,42 @@ class Mod(Cog):
                             embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
                             # await asyncio.sleep(SLEEPTIME)
                             await objectiveChannel.send(embed=embedAttachment)
+                    else:
+                        embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
+                        embedAttachment.set_image(url = message.content)
+                        embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
 
-                    # IF THE MESSAGE IS A GIF
-                    elif message.content.endswith(".gif"):
                         
                 
-                        
+                        date = date()                        
+                        embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
+                        # await asyncio.sleep(SLEEPTIME)
+                        await objectiveChannel.send(embed=embedAttachment)
+
+                # IF THE MESSAGE IS A GIF
+                elif message.content.endswith(".gif"):
                     
+            
+                    
+                
+                    
+                    
+                    embedGif = Embed(title = '',description = '', color = Color.dark_blue())
+                    embedGif.set_image(url = message.content)
+                    
+                    embedGif.set_author(name = message.author,icon_url= message.author.avatar_url)
+                    
+
+                    date = date()               
+                    embedGif.set_footer(text =f"ID:{message.id} • {date}")
+
+                    # await asyncio.sleep(SLEEPTIME)
+                    await objectiveChannel.send(embed=embedGif)
+                elif len(message.attachments) >0:
+                    if message.content.endswith(".gif"):
+                        
+                
+                        embedGif = Embed(title = '',description = '', color = Color.dark_blue())
                         
                         
                         embedGif = Embed(title = '',description = '', color = Color.dark_blue())
@@ -355,68 +373,50 @@ class Mod(Cog):
 
                         # await asyncio.sleep(SLEEPTIME)
                         await objectiveChannel.send(embed=embedGif)
-                    elif len(message.attachments) >0:
-                        if message.content.endswith(".gif"):
-                            
                     
-                            embedGif = Embed(title = '',description = '', color = Color.dark_blue())
-                            
-                            
-                            embedGif = Embed(title = '',description = '', color = Color.dark_blue())
-                            embedGif.set_image(url = message.content)
-                            
-                            embedGif.set_author(name = message.author,icon_url= message.author.avatar_url)
-                            
-
-                            date = date()               
-                            embedGif.set_footer(text =f"ID:{message.id} • {date}")
-
-                            # await asyncio.sleep(SLEEPTIME)
-                            await objectiveChannel.send(embed=embedGif)
-                        
-                        else:
-                            filesToExcept = [".pdf",
-                                            ]
-                            for attachment in message.attachments:
-                                
-
-                                embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
-                                if attachment.url.endswith(".pdf") or attachment.url.endswith(".mp3") or attachment.url.endswith(".mp4"):
-                                    
-                                    embedAttachment.add_field(name = '\u200b', value = attachment.url,inline = False)
-
-                                else:
-                                    
-                                    embedAttachment.set_image(url = attachment.url)
-                                embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
-
-                                
-                        
-                                date = date()                        
-                                embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
-                                # await asyncio.sleep(SLEEPTIME)
-                                
-                                await objectiveChannel.send(embed=embedAttachment)
-
-                    
-
-
-                                
                     else:
-                        
-                        embed = Embed(title = '',description = message.content,color = Color.dark_blue())
-                        embed.set_author(name = message.author, icon_url = message.author.avatar_url)
-                        messageOBJ = await ctx.fetch_message(message.id)  
-                        date = date()
-                        
-                        embed.set_footer(text =f"ID:{message.id} • {date}")
-                    
-                        await asyncio.sleep(self.SLEEPTIME)
-                        await objectiveChannel.send(embed = embed)
+                        filesToExcept = [".pdf",
+                                        ]
+                        for attachment in message.attachments:
+                            
 
-                    #         print(message.content)
+                            embedAttachment = Embed(title = '',description = message.content, color = Color.dark_blue())
+                            if attachment.url.endswith(".pdf") or attachment.url.endswith(".mp3") or attachment.url.endswith(".mp4"):
+                                
+                                embedAttachment.add_field(name = '\u200b', value = attachment.url,inline = False)
+
+                            else:
+                                
+                                embedAttachment.set_image(url = attachment.url)
+                            embedAttachment.set_author(name = message.author,icon_url= message.author.avatar_url)
+
+                            
+                    
+                            date = date()                        
+                            embedAttachment.set_footer(text =f"ID:{message.id} • {date}")
+                            # await asyncio.sleep(SLEEPTIME)
+                            
+                            await objectiveChannel.send(embed=embedAttachment)
+
                 
 
+
+                            
+                else:
+                    
+                    embed = Embed(title = '',description = message.content,color = Color.dark_blue())
+                    embed.set_author(name = message.author, icon_url = message.author.avatar_url)
+                    messageOBJ = await ctx.fetch_message(message.id)  
+                    date = date()
+                    
+                    embed.set_footer(text =f"ID:{message.id} • {date}")
+                
+                    await asyncio.sleep(self.SLEEPTIME)
+                    await objectiveChannel.send(embed = embed)
+
+                #         print(message.content)
+        else:
+            await confirm_primary.send("Restore request denied")
 
 def setup(bot):
     bot.add_cog(Mod(bot))

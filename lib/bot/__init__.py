@@ -59,7 +59,7 @@ class MainBot(Bot):
     def __init__(self):
         self.ready = False
         self.cogs_ready = Ready()
-
+        
         self.guild = None
         self.scheduler = AsyncIOScheduler()
 
@@ -185,9 +185,6 @@ bot = MainBot()
 
 # # binguscord raid success over 3.5k people banned, they shall never forget my name -cheif 1.20.21
 
-
-# # fix esteban commands sending a ghost embed when he deletes a link image - chief 2.11.21
-##^done
 
          
 

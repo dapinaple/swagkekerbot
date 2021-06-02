@@ -7,7 +7,7 @@ from discord.ext.commands import CheckFailure, Cog, command, has_permissions, ha
 from discord.ext.menus import ListPageSource, MenuPages
 
 from ..db import db
-
+from .botmod import isBotAdmin
 
 
 class HelpMenu(ListPageSource):
@@ -117,7 +117,18 @@ class Exp(Cog):
         db.commit()
         await ctx.send("Level up channel set!")
 
+    @command(name = "gamble",brief = "Gambles your xp")
+    @isBotAdmin
+    async def gamble(self,ctx,amount: Optional[int]):
+       
+
+        xp = db.field("SELECT XP FROM users WHERE UserID = ?",ctx.author.id)
         
+        if  amount > xp:
+            await ctx.send("You don't have that much xp!")
+        else:
+            await ctx.send("cool!")
+
 
     @command(name="leaderboard", brief = "send the leaderboard for the server")
     async def display_leaderboard(self, ctx):
@@ -136,13 +147,8 @@ class Exp(Cog):
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:
-            
-            
+               
             self.bot.cogs_ready.ready_up("exp")
-
-
-
-
 
     @Cog.listener()
     async def on_message(self, message):

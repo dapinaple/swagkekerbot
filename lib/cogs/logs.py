@@ -18,7 +18,7 @@ class Logs(Cog):
     async def on_ready(self):
         if not self.bot.ready:
             self.logChannel = self.bot.get_channel(800636861793304606)
-            self.listOfClipees =  [673403025410359337]    
+                
             self.estelogs = self.bot.get_channel(826113307450277929)
             self.ghostLogs = self.bot.get_channel(821518416158261268)
             print(f"ghost logs is {self.ghostLogs}")
@@ -38,11 +38,14 @@ class Logs(Cog):
             await message.channel.send('***Ah nigga don\'t hate me cause I\'m beautiful nigga. Maybe if you got rid of that old yee yee ass haircut, you\'d get some bitches on yo dick.Oh, better yet, maybe Tanisha\'ll call your dog ass if she stops fuckin\' with that brain surgeon or lawyer she fucking with. Niiggaaa***')                                        
                 
         elif message.content.lower().startswith("&"):
-            await message.delete()
+            try:
+                await message.delete()
+            except:
+                pass
             
             
         
-        elif message.author.id in self.listOfClipees:
+        elif message.author.id == 673403025410359337:
             if message.content.startswith("https") or message.content.startswith("cdn") or len(message.attachments) != 0 and message.channel.id != 784152789042593832 and message.guild.id not in self.excluded_guilds:
                 for attachment in message.attachments:
                     await self.estelogs.send(f"{message.author} sent this: {attachment.url} in {message.channel.mention} in the server **{message.guild}**")
@@ -102,7 +105,7 @@ class Logs(Cog):
 
                     embed = Embed(title = 'Ghost Ping Found!',description = '', color = Color.dark_blue())
                     embed.add_field(name = "User:",value = message.author,inline = True)
-                    embed.add_field(name = "Message:",value = f"{message.content} ",inline = True)
+                    embed.add_field(name = "Message:",value = f"{message.content}",inline = True)
                     embed.set_thumbnail(url = message.author.avatar_url)
                 
                     d = datetime.now()
@@ -114,7 +117,7 @@ class Logs(Cog):
                     await ghostchannel.send(embed = embed)
             
             #clipping ppl i.e. estebanlol
-            if message.author.id in self.listOfClipees and not message.content.startswith("https") and message.guild.id not in self.excluded_guilds:  
+            if message.author.id ==673403025410359337 and not message.content.startswith("https") and message.guild.id not in self.excluded_guilds:  
                 embed =Embed(title = '',description = f'**{message.author.mention} sent a message in {message.channel.mention} in {message.guild}**\n {message.content}',color = Color.dark_blue())
                 embed.set_author(name = message.author,icon_url = message.author.avatar_url)
                     
