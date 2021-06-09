@@ -153,38 +153,6 @@ class MainBot(Bot):
 bot = MainBot()
 
 
-  
-# # FUTURE ESTEBAN YOU NEED TO MAKE THE QUEUE WORK FOR THE PLAY FUNCTION
-# # TRY MAKING SOME KIND OF WHILE LOOP BEFORE THE PLAYER FUNCTION OF AFTER IDK 
-# # I DONT FUCKING KNOW DUDE IT DOESN'T MAKE SENSE -Esteban
-
-# # YO WHATS UP GUYS WINTER BREAK STARTED POGGGGGG AND I DON'T WANNA MAKE THE QUEUE BC FUCK THAT -Chief
-
-# #yo its 12:00 am rn on christmas day and I'm pogging rn.-esteba
-# # Future esteban maybe we should make a holiday thing where the bot says something like "merry christmas", on a holiday
-#  #              someones bday maybe>???? - eban
-
-#  #shit good idea man - eban
-
-#  # thanks dude - chief
- 
-#  # ye its a no on the holiday shit - chief
- 
-
-#  # work on the ban shit -eban 1.07
-
-#  #THE BAN THING WORKSS PGGG -chief 1.16.21
-
-#  # PURGE COMMAND WORKS AND IT ALSO ONLY LETS CERTAIN PPL USE IT LETS GOOOO POGGG - chief 1.18.21
-
-#  # should prohbs focus on the IRR - eban 1.18.21
-
-#  # stfu 1.18.21
-
-# # REMEMBER TO ADD TO THE HELP COMMANDS TO DM ADMINS OF THE BOT - eban 1.18.21
-
-# # binguscord raid success over 3.5k people banned, they shall never forget my name -cheif 1.20.21
-
 
          
 
