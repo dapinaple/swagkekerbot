@@ -37,6 +37,7 @@ Intents.guilds = True
 #ONLY TO TEST IF THE BOT IS ONLINE OKKKK
 COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
 IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument)
+TOKEN = 'ODY4OTYxMzE3NTgxNjE5MzIx.YP3RSg.XK6tSBLEiZFLqWU9Ay-lyt2Wk24'
 
 def get_prefix(bot,message):
     prefix = db.field("SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
@@ -86,7 +87,7 @@ class MainBot(Bot):
         print("running setup...")
         self.setup()
         
-        self.token = 'NzM4OTkwNDUyNjczNDc4NzM4.XyT8fQ.vykBvcqIUc1ZSlemFYetHrY7tBU'
+        self.token = TOKEN
         print("running bot")
         super().run(self.token,reconnect = True)
     

