@@ -235,7 +235,7 @@ class Mod(Cog):
     async def ban(self,ctx,member:Member,*,reason: Optional[str]):
         embed = Embed(title =f":poop:***{member} has been banned***", color = Color.dark_blue())
         
-        await member.ban(reason = None if not reason else reason)
+        await member.ban(reason = None if not reason else reason) 
         await ctx.send(embed=embed)
 
     @ban.error

@@ -1,12 +1,13 @@
 from random import choice
 from typing import Optional
 
+import requests
 from discord import Color, Embed, Member
 from discord.ext.commands import Cog, command, has_permissions
-from pytz import timezone
-from ..db import db
-from pytz import timezone
 from discord.utils import get
+from pytz import timezone
+
+from ..db import db
 
 
 class Commands(Cog):
@@ -139,6 +140,18 @@ class Commands(Cog):
             await ctx.send("no")
         else:
             await ctx.send(ctx.guild.icon_url)
+    
+    @command(name = "joke",brief = "tells an amazing joke")
+    async def joke(self,ctx):
+        url = "https://some-random-api.ml/joke"
+        
+        resp = requests.get(url)
+        if 300 >resp.status_code >=200:
+            content = resp.json()
+        else:
+            print("joke command fucked up" + resp.status_code)
+        await ctx.send(content['joke'])
+        
 
     @command(name = "info",brief = "gets some info on a member")
     async def info(self,ctx, member: Optional[Member]):

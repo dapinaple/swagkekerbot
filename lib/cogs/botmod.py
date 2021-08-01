@@ -48,7 +48,7 @@ class BotMod(Cog):
         embed = Embed(title = "Days since the Funny",description=str(dayssince.days),color = Color.dark_blue())
         embed.set_thumbnail(url = channel.guild.icon_url)
 
-        await msg.edit(embed = embed)
+        #await msg.edit(embed = embed)
 
     @command(name = "reloadcog",brief = "reloads a cog of the bot\n**BOT OWNER USAGE ONLY**")
     @isBotAdmin
