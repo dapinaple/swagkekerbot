@@ -1,2 +1,3 @@
-# swagkekerbot
-## this bot is quite the swag
+# SwagKekerBot
+## Bot was made in October of 2020 and unfortunately the discord.py library was depreciated and I never got to update it again
+## bot is offline and maybe one day he'll be back...
